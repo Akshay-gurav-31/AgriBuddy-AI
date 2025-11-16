@@ -1,205 +1,343 @@
-# AgriBuddy - Smart Farming Assistant
+# 🌾 AgriBuddy - Smart Farming Assistant
 
-AgriBuddy is a comprehensive agricultural assistant application designed to help farmers with crop recommendations, pest control, weather insights, and farming guidance. The application features a chatbot interface powered by AI, along with specialized tools for various farming needs.
+> An intelligent agricultural assistant application designed to empower farmers with AI-driven crop recommendations, pest control solutions, weather insights, and comprehensive farming guidance.
 
-## Tech Stack
+---
+
+## 📸 Application Screenshots
+
+### Dashboard & Chat Interface
+<table>
+<tr>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/135aa37e-fa2a-4556-9ae1-17453309524c.jpg" width="250" alt="Chat Interface"/>
+<br><sub>AI Chatbot Dashboard</sub>
+</td>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/15aaded2-1ede-4ff0-97dd-81a3f9e3c9d4.jpg" width="250" alt="Weather Dashboard"/>
+<br><sub>Weather Dashboard</sub>
+</td>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/17677bda-24ea-4a92-bb31-6fd2faa21715.jpg" width="250" alt="Crop Analysis"/>
+<br><sub>Crop Recommendations</sub>
+</td>
+</tr>
+</table>
+
+### Tools & Analysis Features
+<table>
+<tr>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/26b4b0f9-2787-4bc4-81d9-2394b5e415dc.jpg" width="250" alt="Pest Checker"/>
+<br><sub>Pest Detection Tool</sub>
+</td>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/4e5ff42f-e2b2-462c-aa7c-e4f81fa69a88.jpg" width="250" alt="Soil Analysis"/>
+<br><sub>Soil Analysis</sub>
+</td>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/50e430d0-cb09-477b-a10b-9aea4116c15b.jpg" width="250" alt="Pest Control"/>
+<br><sub>Pest Control Guide</sub>
+</td>
+</tr>
+</table>
+
+### Additional Features
+<table>
+<tr>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/595c8e34-9df4-4b09-9c34-af5d7c385fea.jpg" width="250" alt="Farming Guide"/>
+<br><sub>Farming Guide</sub>
+</td>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/6c210f84-9b24-4679-b3ab-4978348e204c.jpg" width="250" alt="Tutorials"/>
+<br><sub>Educational Tutorials</sub>
+</td>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/9e320457-6ae2-4d8a-8ad7-422897e25d88.jpg" width="250" alt="Login"/>
+<br><sub>Authentication</sub>
+</td>
+</tr>
+</table>
+
+### Mobile & User Experience
+<table>
+<tr>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/b2893932-2e03-430f-9147-92cab683a9ee.jpg" width="250" alt="Mobile View"/>
+<br><sub>Responsive Design</sub>
+</td>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/d1a4c153-753d-41e5-9131-037c0be3817d.jpg" width="250" alt="User Profile"/>
+<br><sub>User Profile</sub>
+</td>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/e5b59d96-cedd-4749-99cf-ae9d81b259eb.jpg" width="250" alt="Feature Menu"/>
+<br><sub>Feature Navigation</sub>
+</td>
+</tr>
+</table>
+
+### Additional Interface
+<table>
+<tr>
+<td align="center">
+<img src="https://raw.githubusercontent.com/Akshay-gurav-31/AgriBuddy-AI/main/images/fa9c1777-95b1-4385-8a17-917a9286ac44.jpg" width="250" alt="Settings"/>
+<br><sub>App Interface</sub>
+</td>
+</tr>
+</table>
+
+---
+
+## 🛠️ Tech Stack
 
 ### Backend
-- **Python Flask**: Web framework for building the application
-- **Supabase**: Backend-as-a-Service (BaaS) for database and authentication
-- **Google Generative AI (Gemini)**: AI models for chatbot and image analysis
-- **OpenWeatherMap API**: Weather data and geocoding services
+- **Python Flask** - Web framework for building the application
+- **Supabase** - Backend-as-a-Service (BaaS) for database and authentication
+- **Google Generative AI (Gemini)** - AI models for chatbot and image analysis
+- **OpenWeatherMap API** - Weather data and geocoding services
 
 ### Frontend
-- **HTML/CSS/JavaScript**: Core frontend technologies
-- **Chart.js**: Data visualization for weather analytics
-- **Font Awesome**: Icon library for UI elements
+- **HTML/CSS/JavaScript** - Core frontend technologies
+- **Chart.js** - Data visualization for weather analytics
+- **Font Awesome** - Icon library for UI elements
 
 ### Database
-- **PostgreSQL**: Relational database provided by Supabase
-- **Row Level Security (RLS)**: Data isolation and security policies
+- **PostgreSQL** - Relational database provided by Supabase
+- **Row Level Security (RLS)** - Data isolation and security policies
 
-## Required API Keys
+---
 
-To run AgriBuddy, you'll need the following API keys:
+## 🔑 Required API Keys
 
-1. **Google Generative AI (Gemini) API Key**
-   - Used for AI chat responses and pest/disease image analysis
-   - Model preference: `gemini-2.0-flash` → `gemini-1.5-flash` → `gemini-pro` → `gemini-1.5-pro`
+To run AgriBuddy successfully, you'll need to configure the following API keys:
 
-2. **OpenWeatherMap API Key**
-   - Used for weather data and location-based services
-   - Provides real-time weather information and forecasts
+**Google Generative AI (Gemini) API Key**
+- Used for AI chat responses and pest/disease image analysis
+- Model priority: `gemini-2.0-flash` → `gemini-1.5-flash` → `gemini-pro` → `gemini-1.5-pro`
 
-3. **Supabase URL and Anon Key**
-   - Used for database operations and user authentication
-   - Provides secure access to PostgreSQL database
+**OpenWeatherMap API Key**
+- Used for weather data and location-based services
+- Provides real-time weather information and forecasts
 
-## Database Schema
+**Supabase URL and Anon Key**
+- Used for database operations and user authentication
+- Provides secure access to PostgreSQL database
 
-The application uses three main tables:
+---
 
-### 1. Profiles Table
-Stores user profile information:
-- `id`: UUID (Primary Key)
-- `user_id`: Foreign key to auth.users
-- `full_name`: User's full name
-- `phone_number`: Contact information
-- `state`, `city`, `region`: Location details
-- `crops`: JSONB array of crops
-- `land_area` and `land_unit`: Farm size information
-- `past_cultivation`, `future_plans`: Farming history and plans
-- `water_source`, `soil_type`: Farming conditions
-- `current_crops`, `preferred_crops`: Crop preferences
-- `preferred_language`: Language preference
-- `created_at`, `updated_at`: Timestamps
+## 📊 Database Schema
 
-### 2. Conversations Table
-Stores chat conversation metadata:
-- `id`: UUID (Primary Key)
-- `created_at`, `updated_at`: Timestamps
-- `title`: Conversation title
-- `user_id`: Foreign key to user
+The application utilizes three main PostgreSQL tables:
 
-### 3. Messages Table
-Stores individual chat messages:
-- `id`: UUID (Primary Key)
-- `conversation_id`: Foreign key to conversations
-- `role`: Message sender (user/assistant)
-- `content`: Message content
-- `created_at`: Timestamp
+### Profiles Table
+Comprehensive user profile information storage:
+- `id` - UUID (Primary Key)
+- `user_id` - Foreign key to auth.users
+- `full_name` - User's full name
+- `phone_number` - Contact information
+- `state`, `city`, `region` - Location details
+- `crops` - JSONB array of crops
+- `land_area` and `land_unit` - Farm size information
+- `past_cultivation`, `future_plans` - Farming history and plans
+- `water_source`, `soil_type` - Farming conditions
+- `current_crops`, `preferred_crops` - Crop preferences
+- `preferred_language` - Language preference
+- `created_at`, `updated_at` - Timestamps
 
-## Application Features and Pages
+### Conversations Table
+Chat conversation metadata management:
+- `id` - UUID (Primary Key)
+- `created_at`, `updated_at` - Timestamps
+- `title` - Conversation title
+- `user_id` - Foreign key to user
 
-### 1. Authentication System
-- **Login (`/login`)**: Secure user authentication with email/password
-- **Signup (`/signup`)**: New user registration with profile creation
-- **Logout (`/logout`)**: Secure session termination
+### Messages Table
+Individual chat message storage:
+- `id` - UUID (Primary Key)
+- `conversation_id` - Foreign key to conversations
+- `role` - Message sender (user/assistant)
+- `content` - Message content
+- `created_at` - Timestamp
 
-### 2. Chat Interface (`/chat-interface`)
-The main dashboard featuring:
-- AI-powered farming assistant chatbot
-- Context-aware responses based on user profile
-- Weather integration in conversations
-- Message history storage
-- Location-based weather queries (city or ZIP code)
+---
 
-### 3. Weather Dashboard (`/weather-dashboard`)
-Comprehensive weather insights:
-- Real-time weather data for any location
-- 5-day weather forecast
-- Temperature and precipitation charts
-- Climate statistics (temperature, humidity, wind speed)
-- Real-time clock display
-- Responsive grid layout with multiple data visualizations
+## 🎯 Application Features & Pages
 
-### 4. Pest Checker (`/pest-checker`)
-AI-powered pest and disease identification:
-- Image upload functionality for plant photos
+### 🔐 Authentication System
+**Login** (`/login`) - Secure user authentication with email and password
+**Signup** (`/signup`) - New user registration with comprehensive profile creation
+**Logout** (`/logout`) - Secure session termination
+
+### 💬 Chat Interface (`/chat-interface`)
+The central dashboard featuring:
+- AI-powered farming assistant chatbot with advanced NLP
+- Context-aware responses based on user profile and farming conditions
+- Integrated weather data in conversations
+- Complete message history storage and retrieval
+- Location-based weather queries supporting city names and ZIP codes
+
+### 🌤️ Weather Dashboard (`/weather-dashboard`)
+Comprehensive weather analytics and insights:
+- Real-time weather data for any location globally
+- 5-day weather forecast with detailed predictions
+- Temperature and precipitation visualization charts
+- Climate statistics including temperature, humidity, and wind speed
+- Real-time clock display with timezone support
+- Responsive grid layout with multiple interactive data visualizations
+
+### 🐛 Pest Checker (`/pest-checker`)
+AI-powered pest and disease identification system:
+- Image upload functionality for comprehensive plant photo analysis
 - Computer vision analysis using Gemini 2.0 Vision model
-- Identification of pests, diseases, and other plant issues
-- Severity assessment and affected crops information
-- Solutions and prevention recommendations
+- Accurate identification of pests, diseases, and other plant issues
+- Severity assessment with affected crops information
+- Customized solutions and prevention recommendations
 
-### 5. Pest Control Guide (`/pest-control`)
-Integrated Pest Management (IPM) strategies:
-- Biological control methods
-- Cultural practices
-- Chemical control options
-- Monitoring and scouting techniques
-- Database of common pests and solutions
+### 🛡️ Pest Control Guide (`/pest-control`)
+Integrated Pest Management (IPM) strategies and solutions:
+- Biological control methods and natural predators
+- Cultural practices and preventive measures
+- Chemical control options with safety guidelines
+- Monitoring and scouting techniques for early detection
+- Comprehensive database of common pests and their solutions
 
-### 6. Soil Analysis (`/soil-analysis`)
-Soil health assessment tool:
-- Recommendations based on pH levels and organic matter
-- Ideal soil parameters for major crops
-- Soil improvement guides
+### 🌱 Soil Analysis (`/soil-analysis`)
+Detailed soil health assessment and improvement tool:
+- Recommendations based on pH levels and organic matter content
+- Ideal soil parameters for major Indian crops
+- Comprehensive soil improvement and amendment guides
 
-### 7. Crop Recommendations (`/crop-recommendations`)
-Personalized crop suggestions based on:
-- Soil type
-- Season (Kharif, Rabi, Zaid)
-- Water availability
-- Detailed information for rice, wheat, maize
-- Yield and market price data
+### 🌾 Crop Recommendations (`/crop-recommendations`)
+Personalized crop suggestions powered by intelligent algorithms:
+- Based on soil type, season (Kharif, Rabi, Zaid), and water availability
+- Detailed cultivation information for rice, wheat, maize
+- Yield projections and market price data analysis
+- Region-specific recommendations
 
-### 8. Farming Guide (`/farming-guide`)
-Comprehensive agricultural information:
-- Crop cultivation guides
-- Irrigation best practices (drip, sprinkler, flood, rainwater harvesting)
-- Pest and disease management
-- Soil health management steps
+### 📚 Farming Guide (`/farming-guide`)
+Comprehensive agricultural information and best practices:
+- Step-by-step crop cultivation guides
+- Irrigation techniques (drip, sprinkler, flood, rainwater harvesting)
+- Advanced pest and disease management strategies
+- Soil health management protocols and improvements
 
-### 9. Tutorials (`/tutorials`)
-Educational video-style guides:
-- Field preparation techniques
-- Planting methods
-- Harvest and post-harvest practices
+### 🎓 Tutorials (`/tutorials`)
+Educational video-style guides and demonstrations:
+- Field preparation techniques and equipment usage
+- Optimal planting methods for different crops
+- Harvest and post-harvest practices for maximum yield
 
-## AI and Machine Learning Components
+---
+
+## 🤖 AI and Machine Learning Components
 
 ### Natural Language Processing
-- **Google Gemini API**: Powers the chatbot assistant for answering farming questions
-- Context-aware responses using user profile data
-- Weather integration in conversations
+- **Google Gemini API** - Powers the intelligent chatbot assistant
+- Context-aware response generation using comprehensive user profile data
+- Seamless weather integration in natural conversations
 
 ### Computer Vision
-- **Gemini 2.0 Vision Model**: Analyzes plant images for pest and disease identification
-- Returns structured JSON data with identification, severity, and recommendations
-- Fallback models for compatibility: `gemini-1.5-flash`, `gemini-pro-vision`
+- **Gemini 2.0 Vision Model** - Analyzes plant images for pest and disease identification
+- Structured JSON output with identification results, severity levels, and recommendations
+- Fallback model support: `gemini-1.5-flash`, `gemini-pro-vision`
 
-## Data Science Features
+---
+
+## 📈 Data Science Features
 
 ### Weather Analytics
-- Real-time weather data from OpenWeatherMap API
-- Historical data visualization using Chart.js
-- Forecasting for agricultural planning
-- Location-based services with ZIP code support for India
+- Real-time weather data acquisition from OpenWeatherMap API
+- Historical data visualization and trend analysis using Chart.js
+- Agricultural forecasting for informed planning and decision-making
+- Advanced location-based services with ZIP code support for Indian regions
 
-### Personalization
-- User profile-based recommendations
-- Historical conversation tracking
+### Personalization Engine
+- User profile-based intelligent recommendations
+- Historical conversation tracking and analysis
 - Preference-based crop and farming suggestions
+- Continuous learning from user interactions
 
-## Security Features
+---
 
-- **Row Level Security (RLS)**: Database policies ensuring users only access their own data
-- **Session-based Authentication**: Secure login/logout mechanisms
-- **JWT Token Management**: Supabase authentication handling
-- **Password Protection**: Routes protected from unauthorized access
+## 🔒 Security Features
 
-## UI/UX Features
+- **Row Level Security (RLS)** - Database policies ensuring users access only their own data
+- **Session-based Authentication** - Secure login and logout mechanisms
+- **JWT Token Management** - Supabase authentication handling with secure tokens
+- **Password Protection** - Routes protected from unauthorized access
 
-- **Dark Theme Interface**: Optimized for farming environments
-- **Responsive Design**: Works on all device sizes
-- **Intuitive Navigation**: Sidebar with all features accessible
-- **Real-time Updates**: Dynamic content loading
-- **Visual Data Representation**: Charts, cards, and interactive elements
-- **Accessibility**: Focus states and semantic HTML
+---
 
-## Installation and Setup
+## 🎨 UI/UX Features
 
-1. Clone the repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Set up environment variables in `.env` file:
-   ```
-   GEMINI_API_KEY=your_gemini_api_key
-   OPENWEATHER_API_KEY=your_openweathermap_api_key
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-4. Run the application: `python app.py`
+- **Dark Theme Interface** - Optimized for extended use in farming environments
+- **Responsive Design** - Seamless experience across all devices and screen sizes
+- **Intuitive Navigation** - Sidebar with organized feature access
+- **Real-time Updates** - Dynamic content loading and instant notifications
+- **Visual Data Representation** - Interactive charts, cards, and graphical elements
+- **Accessibility** - Proper focus states and semantic HTML structure
 
-## Target Audience
+---
 
-- Indian farmers of all experience levels
-- Agricultural students and researchers
-- Farming cooperatives and organizations
+## ⚙️ Installation & Setup
 
-## Special Features for Indian Agriculture
+**Step 1: Clone the Repository**
+```bash
+git clone https://github.com/Akshay-gurav-31/AgriBuddy-AI.git
+cd AgriBuddy-AI
+```
 
-- ZIP code support for Indian postal codes
-- Region-specific crop recommendations
-- Local language support
-- Government helpline integration
-- Monsoon and seasonal farming guidance
+**Step 2: Install Dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+**Step 3: Configure Environment Variables**
+Create a `.env` file in the project root and add:
+```
+GEMINI_API_KEY=your_gemini_api_key
+OPENWEATHER_API_KEY=your_openweathermap_api_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+**Step 4: Run the Application**
+```bash
+python app.py
+```
+
+---
+
+## 👥 Target Audience
+
+- **Indian Farmers** - All experience levels from beginners to experienced cultivators
+- **Agricultural Students** - Learning practical farming techniques and science
+- **Researchers** - Data-driven agricultural insights and analysis
+- **Farming Cooperatives** - Organizational and group farming management
+- **Agricultural Organizations** - Extension services and farmer support programs
+
+---
+
+## 🇮🇳 Special Features for Indian Agriculture
+
+- **ZIP Code Support** - Full compatibility with Indian postal codes
+- **Region-Specific Recommendations** - Tailored suggestions for different Indian regions
+- **Local Language Support** - Accessibility in regional languages
+- **Government Helpline Integration** - Links to official agricultural support services
+- **Monsoon & Seasonal Guidance** - Specialized advice for Indian farming seasons (Kharif, Rabi, Zaid)
+
+---
+
+## 📄 License
+
+This project is open source and available for agricultural and educational purposes.
+
+## 🙌 Contributing
+
+We welcome contributions from farmers, developers, and agricultural experts. Please feel free to submit issues and pull requests to improve AgriBuddy.
+
+---
+
+**Made with ❤️ for Indian Farmers**
