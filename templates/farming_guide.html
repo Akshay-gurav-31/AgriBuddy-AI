@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriBuddy - Farming Guide</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #86efac;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: rgba(148, 163, 184, 0.18);
+            --shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <a href="/chat-interface" class="back-button">
+                        <i class="fas fa-arrow-left"></i> Back to Chat
+                    </a>
+                    <h1>Farming Guide</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <i class="fas fa-user"></i>
+                        <span id="user-email">{{ session.user_email }}</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Farming Guide Content -->
+            <div class="dashboard-content">
+                <div class="guide-header">
+                    <h2><i class="fas fa-book"></i> Complete Farming Guide</h2>
+                    <p>Essential knowledge for successful farming practices</p>
+                </div>
+
+                <div class="guide-content">
+                    <!-- Soil Preparation Section -->
+                    <div class="guide-section">
+                        <h3><i class="fas fa-mountain"></i> Soil Preparation</h3>
+                        
+                        <div class="guide-info">
+                            <div class="info-card">
+                                <h4><i class="fas fa-tractor"></i> Plowing and Tilling</h4>
+                                <p>Proper soil preparation is the foundation of successful farming.</p>
+                                <ul>
+                                    <li>Plow the field to break up compacted soil</li>
+                                    <li>Harrow to create a fine tilth for seeding</li>
+                                    <li>Remove weeds and crop residues</li>
+                                    <li>Level the field for uniform water distribution</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="info-card">
+                                <h4><i class="fas fa-vial"></i> Soil Testing</h4>
+                                <p>Understanding your soil is crucial for optimal crop growth.</p>
+                                <ul>
+                                    <li>Test soil pH (6.0-7.0 is optimal for most crops)</li>
+                                    <li>Check nutrient levels (N, P, K)</li>
+                                    <li>Assess organic matter content</li>
+                                    <li>Determine soil texture and drainage</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="info-card">
+                                <h4><i class="fas fa-leaf"></i> Soil Amendment</h4>
+                                <p>Improve soil fertility and structure with proper amendments.</p>
+                                <ul>
+                                    <li>Add organic compost or manure</li>
+                                    <li>Apply lime to raise pH in acidic soils</li>
+                                    <li>Use sulfur to lower pH in alkaline soils</li>
+                                    <li>Incorporate cover crops during off-season</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Planting Techniques -->
+                    <div class="guide-section">
+                        <h3><i class="fas fa-seedling"></i> Planting Techniques</h3>
+                        
+                        <div class="guide-cards">
+                            <div class="guide-card">
+                                <h4><i class="fas fa-calendar-alt"></i> Timing</h4>
+                                <p>Plant at the right time for optimal growth and yield.</p>
+                                <ul>
+                                    <li>Consider local climate and frost dates</li>
+                                    <li>Follow crop-specific planting schedules</li>
+                                    <li>Account for soil temperature requirements</li>
+                                    <li>Plan for successive plantings</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="guide-card">
+                                <h4><i class="fas fa-arrows-alt-h"></i> Spacing</h4>
+                                <p>Proper spacing ensures healthy plant development.</p>
+                                <ul>
+                                    <li>Follow seed packet recommendations</li>
+                                    <li>Allow room for plant growth</li>
+                                    <li>Consider companion planting benefits</li>
+                                    <li>Adjust for soil fertility levels</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="guide-card">
+                                <h4><i class="fas fa-tint"></i> Depth</h4>
+                                <p>Plant seeds at the correct depth for germination.</p>
+                                <ul>
+                                    <li>General rule: 2-3 times seed diameter</li>
+                                    <li>Shallow planting for small seeds</li>
+                                    <li>Deeper planting for larger seeds</li>
+                                    <li>Adjust for soil conditions</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Irrigation Methods -->
+                    <div class="guide-section">
+                        <h3><i class="fas fa-shower"></i> Irrigation Methods</h3>
+                        
+                        <div class="guide-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Method</th>
+                                        <th>Description</th>
+                                        <th>Best For</th>
+                                        <th>Water Efficiency</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Drip Irrigation</td>
+                                        <td>Water delivered directly to root zone</td>
+                                        <td>Vegetables, fruit trees</td>
+                                        <td>90-95%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sprinkler</td>
+                                        <td>Water sprayed over crop area</td>
+                                        <td>Lawns, field crops</td>
+                                        <td>70-80%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Furrow</td>
+                                        <td>Water flows through small channels</td>
+                                        <td>Row crops</td>
+                                        <td>60-70%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Flood</td>
+                                        <td>Field flooded with water</td>
+                                        <td>Rice, pastures</td>
+                                        <td>50-60%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Crop Rotation -->
+                    <div class="guide-section">
+                        <h3><i class="fas fa-sync-alt"></i> Crop Rotation</h3>
+                        
+                        <div class="guide-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h4>Legumes</h4>
+                                    <p>Plant nitrogen-fixing crops like beans, peas, or clover to enrich soil.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h4>Grains</h4>
+                                    <p>Follow with cereal crops like wheat, corn, or rice that benefit from nitrogen.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h4>Root Crops</h4>
+                                    <p>Plant root vegetables like carrots or potatoes that require less nitrogen.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h4>Rest Period</h4>
+                                    <p>Allow field to rest or plant cover crops to restore soil health.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Harvesting Guide -->
+                    <div class="guide-section">
+                        <h3><i class="fas fa-scissors"></i> Harvesting Guide</h3>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <i class="fas fa-sun"></i>
+                                <h4>Timing</h4>
+                                <p>Harvest at peak ripeness for best quality</p>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-clock"></i>
+                                <h4>Frequency</h4>
+                                <p>Regular harvesting encourages continued production</p>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-thermometer-half"></i>
+                                <h4>Conditions</h4>
+                                <p>Harvest in cool morning hours when possible</p>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-box"></i>
+                                <h4>Storage</h4>
+                                <p>Proper storage extends shelf life significantly</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/logout';
+            }
+        }
+        
+        // No sidebar functionality needed
+    </script>
+</body>
+</html>

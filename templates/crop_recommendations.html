@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriBuddy - Crop Recommendations</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #86efac;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: rgba(148, 163, 184, 0.18);
+            --shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+        }
+        
+        .back-button {
+            padding: 10px 18px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+            margin-right: 16px;
+        }
+
+        .back-button:hover {
+            background: rgba(16, 185, 129, 0.25);
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-seedling"></i>
+                <h2>AgriBuddy</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/chat-interface" class="nav-item">
+                    <i class="fas fa-comments"></i>
+                    <span>Chat</span>
+                </a>
+                <a href="/weather-dashboard" class="nav-item">
+                    <i class="fas fa-cloud-sun"></i>
+                    <span>Weather</span>
+                </a>
+                <a href="/farming-guide" class="nav-item">
+                    <i class="fas fa-book"></i>
+                    <span>Farming Guide</span>
+                </a>
+                <a href="/tutorials" class="nav-item">
+                    <i class="fas fa-video"></i>
+                    <span>Tutorials</span>
+                </a>
+                <a href="/crop-recommendations" class="nav-item active">
+                    <i class="fas fa-seedling"></i>
+                    <span>Crop Recommendations</span>
+                </a>
+                <a href="/pest-control" class="nav-item">
+                    <i class="fas fa-bug"></i>
+                    <span>Pest Control</span>
+                </a>
+                <a href="/soil-analysis" class="nav-item">
+                    <i class="fas fa-mountain"></i>
+                    <span>Soil Analysis</span>
+                </a>
+                <a href="/pest-checker" class="nav-item">
+                    <i class="fas fa-search"></i>
+                    <span>Pest Checker</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="logout-button" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <a href="/chat-interface" class="back-button">
+                        <i class="fas fa-arrow-left"></i> Back to Chat
+                    </a>
+                    <button class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Crop Recommendations</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <i class="fas fa-user"></i>
+                        <span id="user-email">{{ session.user_email }}</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Crop Recommendations Content -->
+            <div class="dashboard-content">
+                <div class="guide-header">
+                    <h2><i class="fas fa-seedling"></i> Smart Crop Recommendations</h2>
+                    <p>Find the best crops for your soil and climate conditions</p>
+                </div>
+
+                <div class="guide-content">
+                    <!-- Soil-Based Recommendations -->
+                    <div class="guide-section">
+                        <h3><i class="fas fa-mountain"></i> Soil Type Recommendations</h3>
+                        
+                        <div class="guide-cards">
+                            <div class="guide-card">
+                                <h4><i class="fas fa-water"></i> Clay Soil</h4>
+                                <p>Heavy, nutrient-rich soil that retains water well.</p>
+                                <ul>
+                                    <li><strong>Best Crops:</strong> Rice, wheat, barley, cabbage</li>
+                                    <li><strong>Improvement:</strong> Add sand and organic matter</li>
+                                    <li><strong>Drainage:</strong> Ensure proper drainage to prevent waterlogging</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="guide-card">
+                                <h4><i class="fas fa-sun"></i> Sandy Soil</h4>
+                                <p>Light, well-draining soil that warms quickly.</p>
+                                <ul>
+                                    <li><strong>Best Crops:</strong> Carrots, potatoes, tomatoes, peppers</li>
+                                    <li><strong>Improvement:</strong> Add compost and clay</li>
+                                    <li><strong>Watering:</strong> Requires frequent watering</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="guide-card">
+                                <h4><i class="fas fa-balance-scale"></i> Loamy Soil</h4>
+                                <p>Ideal soil with balanced sand, silt, and clay.</p>
+                                <ul>
+                                    <li><strong>Best Crops:</strong> Most vegetables, fruits, and grains</li>
+                                    <li><strong>Maintenance:</strong> Regular organic matter additions</li>
+                                    <li><strong>Drainage:</strong> Excellent natural drainage</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Seasonal Recommendations -->
+                    <div class="guide-section">
+                        <h3><i class="fas fa-cloud-sun"></i> Seasonal Crop Guide</h3>
+                        
+                        <div class="guide-info">
+                            <div class="info-card">
+                                <h4><i class="fas fa-leaf"></i> Kharif Season (June-October)</h4>
+                                <p>Monsoon season crops</p>
+                                <ul>
+                                    <li>Rice, maize, sorghum, pearl millet</li>
+                                    <li>Soybean, groundnut, cotton</li>
+                                    <li>Pulses: Black gram, green gram</li>
+                                    <li>Vegetables: Cucumber, bitter gourd</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="info-card">
+                                <h4><i class="fas fa-snowflake"></i> Rabi Season (October-March)</h4>
+                                <p>Winter season crops</p>
+                                <ul>
+                                    <li>Wheat, barley, oats</li>
+                                    <li>Peas, mustard, chickpeas</li>
+                                    <li>Vegetables: Potato, onion, carrot</li>
+                                    <li>Oilseeds: Rapeseed, linseed</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="info-card">
+                                <h4><i class="fas fa-seedling"></i> Zaid Season (March-June)</h4>
+                                <p>Summer season crops</p>
+                                <ul>
+                                    <li>Watermelon, muskmelon, cucumber</li>
+                                    <li>Bitter gourd, bottle gourd</li>
+                                    <li>Fodder crops: Berseem, cowpea</li>
+                                    <li>Early planting of some rabi crops</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Climate-Based Recommendations -->
+                    <div class="guide-section">
+                        <h3><i class="fas fa-thermometer-half"></i> Climate Zone Recommendations</h3>
+                        
+                        <div class="guide-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Climate Zone</th>
+                                        <th>Temperature Range</th>
+                                        <th>Recommended Crops</th>
+                                        <th>Special Considerations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tropical</td>
+                                        <td>20-35°C</td>
+                                        <td>Rice, sugarcane, banana, coconut</td>
+                                        <td>High rainfall, humidity management</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Subtropical</td>
+                                        <td>10-25°C</td>
+                                        <td>Wheat, maize, potato, apple</td>
+                                        <td>Seasonal variations, frost protection</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Arid</td>
+                                        <td>25-45°C</td>
+                                        <td>Millet, barley, cotton, date palm</td>
+                                        <td>Water conservation, drought-resistant varieties</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Temperate</td>
+                                        <td>5-20°C</td>
+                                        <td>Apple, grape, wheat, barley</td>
+                                        <td>Frost protection, chilling requirements</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Crop Rotation Guide -->
+                    <div class="guide-section">
+                        <h3><i class="fas fa-sync-alt"></i> Crop Rotation Benefits</h3>
+                        
+                        <div class="guide-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h4>Legumes</h4>
+                                    <p>Start with nitrogen-fixing crops like beans or peas to enrich soil.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h4>Leafy Vegetables</h4>
+                                    <p>Follow with nitrogen-loving crops like lettuce or spinach.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h4>Fruiting Crops</h4>
+                                    <p>Plant heavy feeders like tomatoes or peppers next.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h4>Root Crops</h4>
+                                    <p>End with light feeders like carrots or radishes to restore balance.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Reference -->
+                    <div class="guide-section">
+                        <h3><i class="fas fa-lightbulb"></i> Quick Recommendations</h3>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <i class="fas fa-coins"></i>
+                                <h4>High Value</h4>
+                                <p>Herbs, spices, medicinal plants</p>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-bolt"></i>
+                                <h4>Fast Growing</h4>
+                                <p>Radish, lettuce, spinach</p>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-droplet"></i>
+                                <h4>Low Water</h4>
+                                <p>Millet, sorghum, okra</p>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-shield-alt"></i>
+                                <h4>Disease Resistant</h4>
+                                <p>Hybrid varieties, native crops</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/logout';
+            }
+        }
+        
+        // Toggle sidebar on mobile
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleButton = document.querySelector('.sidebar-toggle');
+            
+            if (sidebar.classList.contains('active') && 
+                !sidebar.contains(event.target) && 
+                event.target !== toggleButton &&
+                !toggleButton.contains(event.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

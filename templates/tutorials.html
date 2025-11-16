@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>AgriBuddy - Farming Tutorials</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #86efac;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: rgba(148, 163, 184, 0.18);
+            --shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #1e293b 100%);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .tutorials-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 18px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background: rgba(16, 185, 129, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .tutorials-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 24px 0;
+        }
+
+        .tutorials-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .tutorials-header p {
+            font-size: 16px;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .tutorials-section h3 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 4px;
+        }
+
+        /* Responsive Grid - No Empty Space */
+        .tutorial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+            justify-content: center;
+        }
+
+        .tutorial-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 100%;
+        }
+
+        .tutorial-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .tutorial-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1;
+        }
+
+        .tutorial-card:hover::before {
+            opacity: 1;
+        }
+
+        .tutorial-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            background: #1e293b;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .tutorial-thumbnail iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .tutorial-thumbnail iframe.loaded {
+            opacity: 1;
+        }
+
+        .tutorial-thumbnail::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(180deg, transparent 60%, rgba(15, 23, 42, 0.7));
+            pointer-events: none;
+        }
+
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--primary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 2;
+        }
+
+        .loading-indicator i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .tutorial-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tutorial-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tutorial-description {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            flex: 1;
+        }
+
+        .tutorial-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .tutorial-duration {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tutorial-play-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 3;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .tutorial-card:hover .tutorial-play-btn {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .tutorials-container {
+                padding: 16px;
+            }
+            
+            .back-button {
+                top: 16px;
+                left: 16px;
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+            
+            .tutorials-header h2 {
+                font-size: 24px;
+            }
+            
+            .tutorials-header p {
+                font-size: 14px;
+            }
+            
+            .tutorial-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .tutorial-thumbnail {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tutorials-container">
+        <!-- Back Button -->
+        <a href="javascript:history.back()" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+
+        <!-- Header -->
+        <div class="tutorials-header">
+            <h2><i class="fas fa-video"></i> Farming Tutorials</h2>
+            <p>Step-by-step video guides for modern farming techniques</p>
+        </div>
+
+        <!-- Tutorials Section -->
+        <div class="tutorials-content">
+            <div class="tutorials-section">
+                <h3><i class="fas fa-play-circle"></i> Recommended Tutorials</h3>
+                <div class="tutorial-grid">
+
+                    <!-- Video 1: Soil Mix for Indoor Plants -->
+                    <div class="tutorial-card" data-video-id="ofWJN4Tw7bo">
+                        <div class="tutorial-thumbnail" style="background-image: url('https://img.youtube.com/vi/ofWJN4Tw7bo/maxresdefault.jpg');">
+                            <iframe data-src="https://www.youtube.com/embed/ofWJN4Tw7bo?rel=0" allowfullscreen></iframe>
+                            <div class="loading-indicator"><i class="fas fa-spinner"></i> Loading...</div>
+                            <div class="play-icon"><i class="fas fa-play"></i></div>
+                            <div class="error-msg">Video unavailable</div>
+                        </div>
+                        <div class="tutorial-info">
+                            <div class="level-badge level-beginner">Beginner</div>
+                            <h4>How to Prepare Soil Mix for Indoor Plants</h4>
+                            <p>Step-by-step guide to create perfect soil mix for healthy indoor plants.</p>
+                            <div class="tutorial-meta">
+                                <span><i class="fas fa-clock"></i> 10 min</span>
+                                <span><i class="fas fa-eye"></i> 125K</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video 2: Soil Testing Lab Methods -->
+                    <div class="tutorial-card" data-video-id="L6EtmGMJflI">
+                        <div class="tutorial-thumbnail" style="background-image: url('https://img.youtube.com/vi/L6EtmGMJflI/maxresdefault.jpg');">
+                            <iframe data-src="https://www.youtube.com/embed/L6EtmGMJflI?rel=0" allowfullscreen></iframe>
+                            <div class="loading-indicator"><i class="fas fa-spinner"></i> Loading...</div>
+                            <div class="play-icon"><i class="fas fa-play"></i></div>
+                            <div class="error-msg">Video unavailable</div>
+                        </div>
+                        <div class="tutorial-info">
+                            <div class="level-badge level-advanced">Advanced</div>
+                            <h4>Agriculture Soil Testing - Laboratory Methods</h4>
+                            <p>Learn professional soil testing for pH, EC, NPK, Zn, and more.</p>
+                            <div class="tutorial-meta">
+                                <span><i class="fas fa-clock"></i> 20 min</span>
+                                <span><i class="fas fa-eye"></i> 89K</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cards = document.querySelectorAll('.tutorial-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const card = entry.target;
+                        const iframe = card.querySelector('iframe');
+                        const loading = card.querySelector('.loading-indicator');
+                        const error = card.querySelector('.error-msg');
+
+                        if (iframe && iframe.dataset.src) {
+                            iframe.src = iframe.dataset.src;
+                            iframe.onload = () => {
+                                iframe.classList.add('loaded');
+                                loading.style.display = 'none';
+                            };
+                            iframe.onerror = () => {
+                                loading.style.display = 'none';
+                                error.style.display = 'block';
+                            };
+                        }
+                        observer.unobserve(card);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            cards.forEach(card => observer.observe(card));
+
+            // Click to open in new tab
+            cards.forEach(card => {
+                card.addEventListener('click', function () {
+                    const videoId = this.dataset.videoId;
+                    window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

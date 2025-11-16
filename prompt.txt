@@ -1,0 +1,143 @@
+AgriBuddy - Smart Farming Assistant Application
+
+OVERVIEW:
+AgriBuddy is a comprehensive agricultural assistant application designed to help farmers in India with crop recommendations, pest control, weather insights, and farming guidance. The application features a chatbot interface powered by AI, along with specialized tools for various farming needs.
+
+TECHNICAL ARCHITECTURE:
+- Backend: Python Flask web framework
+- Frontend: HTML, CSS, JavaScript
+- Database: Supabase (PostgreSQL with Row Level Security)
+- Authentication: Supabase Auth
+- AI Integration: Google Gemini API
+- Weather Data: OpenWeatherMap API
+- Deployment: Local development server
+
+MAIN FEATURES:
+
+1. USER AUTHENTICATION
+- Secure signup and login system
+- Session management
+- User profile storage in Supabase
+
+2. CHATBOT INTERFACE
+- AI-powered farming assistant
+- Context-aware responses based on user profile
+- Weather integration in conversations
+- Message history storage
+
+3. FARMER PROFILE MANAGEMENT
+- Personal information (name, email, phone)
+- Farm details (location, land size, soil type, crops)
+- Language preferences
+- Settings page with form validation
+
+4. WEATHER INSIGHTS DASHBOARD
+- Real-time weather data for any Indian city or ZIP code
+- 5-day forecast display
+- Temperature and precipitation charts
+- Climate statistics (max/min temp, humidity, wind speed)
+- Real-time clock display
+- Responsive grid layout
+
+5. CROP RECOMMENDATIONS
+- Personalized crop suggestions based on:
+  * Soil type
+  * Season (Kharif, Rabi, Zaid)
+  * Water availability
+- Detailed crop information for rice, wheat, maize
+- Yield and market price data
+
+6. PEST CONTROL GUIDE
+- Pest identification tool
+- Integrated Pest Management (IPM) strategies:
+  * Biological control
+  * Cultural practices
+  * Chemical control
+  * Monitoring & scouting
+- Database of common pests and solutions
+
+7. SOIL ANALYSIS
+- Soil health assessment tool
+- Recommendations based on pH levels and organic matter
+- Ideal soil parameters for major crops
+- Soil improvement guide
+
+8. FARMING GUIDE
+- Comprehensive crop cultivation information
+- Irrigation best practices (drip, sprinkler, flood, rainwater harvesting)
+- Pest and disease management table
+- Soil health management steps
+
+9. TUTORIALS
+- Video-style guides for farming techniques
+- Field preparation tutorials
+- Planting methods
+- Harvest and post-harvest practices
+
+10. EXPERT SUPPORT
+- Direct access to government helplines
+- Farmers Helpline: 1800 1036 110
+- Kisan Call Centre: 1800-180-1551
+- Call functionality simulation
+
+DATABASE STRUCTURE:
+
+1. farmer_details TABLE
+- id (UUID, primary key)
+- user_id (foreign key to auth.users)
+- phone_number (TEXT)
+- farm_description (TEXT)
+- land_size (DECIMAL)
+- soil_type (TEXT)
+- primary_crop (TEXT)
+- city (TEXT)
+- state (TEXT)
+- zip_code (TEXT)
+- languages (TEXT[])
+- created_at (TIMESTAMP)
+- updated_at (TIMESTAMP)
+
+2. chat_messages TABLE
+- id (UUID, primary key)
+- user_id (foreign key to auth.users)
+- message (TEXT)
+- response (TEXT)
+- location (TEXT)
+- created_at (TIMESTAMP)
+
+SECURITY FEATURES:
+- Row Level Security (RLS) policies for all tables
+- User data isolation
+- Password-protected routes
+- Session-based authentication
+
+UI/UX FEATURES:
+- Dark theme interface optimized for farming environments
+- Responsive design for all device sizes
+- Intuitive sidebar navigation
+- Real-time updates
+- Interactive forms and dashboards
+- Visual data representation (charts, cards)
+
+API INTEGRATIONS:
+- OpenWeatherMap for weather data and geocoding
+- Google Gemini for AI chat responses
+- Supabase for database and authentication
+
+FILE STRUCTURE:
+- app.py: Main Flask application
+- templates/: HTML templates (login, signup, chat, settings, etc.)
+- static/: CSS, JavaScript, and image assets
+- supabase_schema.sql: Database schema and policies
+
+TARGET AUDIENCE:
+- Indian farmers of all experience levels
+- Agricultural students and researchers
+- Farming cooperatives and organizations
+
+SPECIAL FEATURES FOR INDIAN AGRICULTURE:
+- ZIP code support for Indian postal codes
+- Region-specific crop recommendations
+- Local language support
+- Government helpline integration
+- Monsoon and seasonal farming guidance

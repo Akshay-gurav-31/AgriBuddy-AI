@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriBuddy - Pest Control Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #86efac;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: rgba(148, 163, 184, 0.18);
+            --shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        * { 
+            margin:0; 
+            padding:0; 
+            box-sizing:border-box; 
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        .app-container { 
+            display:flex; 
+            min-height:100vh; 
+        }
+        .main-content { 
+            flex:1; 
+            padding:20px; 
+        }
+
+        /* Header - Dark Theme with Green Accents */
+        .header {
+            display:flex; 
+            justify-content:space-between; 
+            align-items:center;
+            background: rgba(15, 23, 42, 0.75);
+            color: var(--text); 
+            padding:15px 20px;
+            border-radius:12px; 
+            margin-bottom:25px; 
+            box-shadow:0 3px 10px rgba(0,0,0,.1);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(14px);
+        }
+        .header-left { 
+            display:flex; 
+            align-items:center; 
+            gap:15px; 
+        }
+        .back-button {
+            color: var(--primary); 
+            text-decoration:none; 
+            font-size:1rem;
+            display:flex; 
+            align-items:center; 
+            gap:8px; 
+            padding:8px 14px;
+            background: rgba(16, 185, 129, 0.15); 
+            border-radius:8px; 
+            transition: var(--transition);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .back-button:hover { 
+            background: rgba(16, 185, 129, 0.25);
+            transform: translateY(-2px);
+        }
+        .header h1 { 
+            font-size:1.7rem; 
+            margin:0; 
+            color: var(--primary);
+        }
+        .user-info { 
+            display:flex; 
+            align-items:center; 
+            gap:8px; 
+            font-size:0.95rem; 
+            color: var(--text-muted);
+        }
+
+        /* Content */
+        .dashboard-content { 
+            max-width:1200px; 
+            margin:0 auto; 
+        }
+        .guide-header { 
+            text-align:center; 
+            margin-bottom:35px; 
+        }
+        .guide-header h2 { 
+            color: var(--primary); 
+            font-size:2.1rem; 
+        }
+        .guide-header p { 
+            color: var(--text-muted); 
+            font-size:1.1rem; 
+        }
+
+        .guide-section {
+            background: var(--card-bg); 
+            padding:28px; 
+            margin-bottom:35px;
+            border-radius:14px; 
+            box-shadow:0 3px 12px rgba(0,0,0,.07);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+        }
+        .guide-section h3 {
+            color: var(--primary); 
+            margin-bottom:20px; 
+            font-size:1.55rem;
+            display:flex; 
+            align-items:center; 
+            gap:10px;
+        }
+
+        /* Cards Grid */
+        .guide-cards, .guide-info, .stats-grid {
+            display:grid; 
+            grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
+            gap:22px; 
+            margin-top:18px;
+        }
+        .guide-card, .info-card, .stat-card {
+            background: rgba(15, 23, 42, 0.7); 
+            padding:20px; 
+            border-radius:12px;
+            border:1px solid var(--border); 
+            transition: transform .25s, box-shadow .25s;
+        }
+        .guide-card:hover, .info-card:hover, .stat-card:hover {
+            transform:translateY(-5px); 
+            box-shadow:0 8px 20px rgba(16, 185, 129,.15);
+            border-color: var(--primary);
+        }
+        .guide-card h4, .info-card h4, .stat-card h4 {
+            color: var(--primary); 
+            margin-bottom:10px; 
+            display:flex; 
+            align-items:center; 
+            gap:8px;
+        }
+        .guide-card ul, .info-card ul {
+            margin-left:20px; 
+            font-size:0.95rem; 
+            color: var(--text-muted);
+        }
+        .guide-card li, .info-card li { 
+            margin-bottom:6px; 
+        }
+
+        /* Table */
+        .pest-table {
+            width:100%; 
+            border-collapse:collapse; 
+            margin-top:18px;
+            font-size:0.95rem; 
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .pest-table th {
+            background: var(--primary); 
+            color:white; 
+            padding:14px; 
+            text-align:left;
+        }
+        .pest-table td {
+            padding:12px; 
+            border-bottom:1px solid var(--border);
+            color: var(--text-muted);
+        }
+        .pest-table tr:hover { 
+            background: rgba(16, 185, 129, 0.1); 
+        }
+
+        /* IPM Steps */
+        .guide-steps { 
+            display:flex; 
+            flex-direction:column; 
+            gap:20px; 
+        }
+        .step { 
+            display:flex; 
+            align-items:flex-start; 
+            gap:16px; 
+        }
+        .step-number {
+            background: var(--primary); 
+            color:white; 
+            width:42px; 
+            height:42px;
+            border-radius:50%; 
+            display:flex; 
+            align-items:center; 
+            justify-content:center;
+            font-weight:bold; 
+            font-size:1.2rem; 
+            flex-shrink:0;
+        }
+        .step-content h4 { 
+            color: var(--primary); 
+            margin-bottom:6px; 
+        }
+        .step-content p {
+            color: var(--text-muted);
+        }
+
+        /* === QUICK REFERENCE - WHITE BOX (PERFECT FIT) === */
+        .quick-reference-box {
+            background: rgba(15, 23, 42, 0.7); 
+            border:2px solid var(--primary); 
+            padding:30px;
+            border-radius:16px; 
+            margin:35px 0; 
+            box-shadow:0 5px 18px rgba(16, 185, 129,.12);
+            backdrop-filter: blur(12px);
+        }
+        .quick-reference-box h3 {
+            color: var(--primary); 
+            margin-bottom:22px; 
+            text-align:center;
+            font-size:1.65rem; 
+            display:flex; 
+            align-items:center; 
+            justify-content:center; 
+            gap:10px;
+        }
+        .stats-grid { 
+            gap:20px; 
+        }
+        .stat-card {
+            text-align:center; 
+            padding:22px 16px; 
+            border-radius:12px;
+            background: rgba(15, 23, 42, 0.5); 
+            border:1px dashed var(--primary); 
+            transition: var(--transition);
+        }
+        .stat-card:hover {
+            background: rgba(16, 185, 129, 0.15); 
+            transform:scale(1.04);
+        }
+        .stat-card i { 
+            font-size:2rem; 
+            margin-bottom:10px; 
+            color: var(--primary); 
+        }
+        .stat-card h4 { 
+            color: var(--primary); 
+            font-size:1.15rem; 
+        }
+        .stat-card p { 
+            font-size:0.92rem; 
+            color: var(--text-muted); 
+        }
+
+        /* Responsive */
+        @media (max-width:768px) {
+            .header { 
+                flex-direction:column; 
+                text-align:center; 
+                gap:15px; 
+            }
+            .header-left, .header-right { 
+                width:100%; 
+                justify-content:center; 
+            }
+            .guide-section, .quick-reference-box { 
+                padding:18px; 
+            }
+            .guide-cards, .guide-info, .stats-grid { 
+                grid-template-columns:1fr; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Content (No Sidebar) -->
+        <div class="main-content">
+
+            <!-- Header (Dark Theme with Green Accents) -->
+            <header class="header">
+                <div class="header-left">
+                    <a href="/chat-interface" class="back-button">
+                        <i class="fas fa-arrow-left"></i> Back to Chat
+                    </a>
+                    <h1>Pest Control Guide</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <i class="fas fa-user"></i>
+                        <span id="user-email">{{ session.user_email }}</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="dashboard-content">
+
+                <div class="guide-header">
+                    <h2><i class="fas fa-bug"></i> Comprehensive Pest Control Guide</h2>
+                    <p>Learn about common agricultural pests and effective control methods</p>
+                </div>
+
+                <!-- Common Pests -->
+                <div class="guide-section">
+                    <h3><i class="fas fa-exclamation-circle"></i> Common Agricultural Pests</h3>
+                    <div class="guide-cards">
+                        <div class="guide-card">
+                            <h4><i class="fas fa-spider"></i> Aphids</h4>
+                            <p>Small, soft-bodied insects that suck plant juices, causing stunted growth and distorted leaves.</p>
+                            <ul>
+                                <li><strong>Crops Affected:</strong> Most crops</li>
+                                <li><strong>Damage:</strong> Leaf curling, yellowing, honeydew secretion</li>
+                                <li><strong>Identification:</strong> Small pear-shaped insects on leaf undersides</li>
+                            </ul>
+                        </div>
+                        <div class="guide-card">
+                            <h4><i class="fas fa-bug"></i> Caterpillars</h4>
+                            <p>Larvae of moths and butterflies that chew leaves, creating large holes.</p>
+                            <ul>
+                                <li><strong>Crops Affected:</strong> Cabbage, tomatoes, corn</li>
+                                <li><strong>Damage:</strong> Large irregular holes in leaves</li>
+                                <li><strong>Identification:</strong> Various colored worms on plants</li>
+                            </ul>
+                        </div>
+                        <div class="guide-card">
+                            <h4><i class="fas fa-snowflake"></i> Whiteflies</h4>
+                            <p>Tiny white insects that fly when disturbed and suck plant sap.</p>
+                            <ul>
+                                <li><strong>Crops Affected:</strong> Tomatoes, peppers, beans</li>
+                                <li><strong>Damage:</strong> Yellowing leaves, sooty mold growth</li>
+                                <li><strong>Identification:</strong> Small white moths flying from plants</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Organic Control -->
+                <div class="guide-section">
+                    <h3><i class="fas fa-leaf"></i> Organic Pest Control Methods</h3>
+                    <div class="guide-info">
+                        <div class="info-card">
+                            <h4><i class="fas fa-oil-can"></i> Neem Oil</h4>
+                            <p>A natural insecticide derived from neem tree seeds.</p>
+                            <ul>
+                                <li>Effective against aphids, whiteflies, and mites</li>
+                                <li>Apply in early morning or evening</li>
+                                <li>Safe for beneficial insects when used properly</li>
+                            </ul>
+                        </div>
+                        <div class="info-card">
+                            <h4><i class="fas fa-bee"></i> Beneficial Insects</h4>
+                            <p>Natural predators that control pest populations.</p>
+                            <ul>
+                                <li>Ladybugs eat aphids and mites</li>
+                                <li>Lacewings consume aphids and caterpillars</li>
+                                <li>Parasitic wasps control caterpillars</li>
+                            </ul>
+                        </div>
+                        <div class="info-card">
+                            <h4><i class="fas fa-seedling"></i> Companion Planting</h4>
+                            <p>Using specific plants to repel pests naturally.</p>
+                            <ul>
+                                <li>Marigolds repel nematodes</li>
+                                <li>Basil deters flies and mosquitoes</li>
+                                <li>Mint repels ants and aphids</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chemical Control -->
+                <div class="guide-section">
+                    <h3><i class="fas fa-flask"></i> Chemical Pest Control</h3>
+                    <div class="guide-table">
+                        <table class="pest-table">
+                            <thead>
+                                <tr>
+                                    <th>Pest</th>
+                                    <th>Recommended Pesticide</th>
+                                    <th>Application Method</th>
+                                    <th>Precautions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Aphids</td><td>Imidacloprid, Pyrethrin</td><td>Foliar spray, soil drench</td><td>Avoid flowering periods to protect bees</td></tr>
+                                <tr><td>Caterpillars</td><td>Bacillus thuringiensis (Bt)</td><td>Foliar spray</td><td>Apply in evening for best results</td></tr>
+                                <tr><td>Whiteflies</td><td>Acetamiprid, Neonicotinoids</td><td>Foliar spray, yellow sticky traps</td><td>Rotate chemicals to prevent resistance</td></tr>
+                                <tr><td>Spider Mites</td><td>Acaricides, Abamectin</td><td>Foliar spray, focus on leaf undersides</td><td>Apply in cool weather</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- IPM -->
+                <div class="guide-section">
+                    <h3><i class="fas fa-project-diagram"></i> Integrated Pest Management (IPM)</h3>
+                    <div class="guide-steps">
+                        <div class="step"><div class="step-number">1</div><div class="step-content"><h4>Prevention</h4><p>Use healthy seeds, maintain proper spacing, and practice crop rotation to prevent pest infestations.</p></div></div>
+                        <div class="step"><div class="step-number">2</div><div class="step-content"><h4>Monitoring</h4><p>Regularly inspect crops for early signs of pest damage and identify pests correctly.</p></div></div>
+                        <div class="step"><div class="step-number">3</div><div class="step-content"><h4>Thresholds</h4><p>Determine economic thresholds - when pest populations justify control measures.</p></div></div>
+                        <div class="step"><div class="step-number">4</div><div class="step-content"><h4>Control</h4><p>Use a combination of biological, cultural, physical, and chemical controls in order of preference.</p></div></div>
+                        <div class="step"><div class="step-number">5</div><div class="step-content"><h4>Evaluation</h4><p>Assess the effectiveness of control measures and adjust strategies as needed.</p></div></div>
+                    </div>
+                </div>
+
+                <!-- QUICK REFERENCE - WHITE BOX WITH GREEN BORDER -->
+                <div class="quick-reference-box">
+                    <h3><i class="fas fa-bolt"></i> Quick Pest Control Reference</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card"><i class="fas fa-sync-alt"></i><h4>Crop Rotation</h4><p>Break pest life cycles</p></div>
+                        <div class="stat-card"><i class="fas fa-tint"></i><h4>Proper Watering</h4><p>Avoid conditions that attract pests</p></div>
+                        <div class="stat-card"><i class="fas fa-trash-alt"></i><h4>Sanitation</h4><p>Remove pest habitats</p></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth back navigation
+        document.querySelector('.back-button').addEventListener('click', e => {
+            e.preventDefault();
+            window.history.back();
+        });
+    </script>
+</body>
+</html>
