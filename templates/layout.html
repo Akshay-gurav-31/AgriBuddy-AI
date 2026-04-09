@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriBuddy - {% block title %}Digital Agronomist{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        (function() {
+            const t = localStorage.getItem('agribuddy-theme');
+            if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        })();
+    </script>
+    <script src="/static/theme.js" defer></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="app-container">
+        <!-- Global Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header" style="display: flex; align-items: center; gap: 12px; padding: 20px;">
+                <i class="fas fa-seedling" style="font-size: 24px; color: var(--green-primary);"></i>
+                <h2 style="margin: 0; font-size: 20px;">AgriBuddy</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/weather-dashboard" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i><span>Dashboard</span>
+                </a>
+                <a href="/chat-interface" class="nav-item {% if active_page == 'chat' %}active{% endif %}">
+                    <i class="fas fa-comments"></i><span>Chat</span>
+                </a>
+                <a href="/pest-checker" class="nav-item {% if active_page == 'pest_checker' %}active{% endif %}">
+                    <i class="fas fa-search"></i><span>Pest Checker</span>
+                </a>
+                <a href="/soil-analysis" class="nav-item {% if active_page == 'soil_analysis' %}active{% endif %}">
+                    <i class="fas fa-mountain"></i><span>Soil Analysis</span>
+                </a>
+                <a href="/crop-recommendations" class="nav-item {% if active_page == 'recommendations' %}active{% endif %}">
+                    <i class="fas fa-seedling"></i><span>Recommendations</span>
+                </a>
+                <a href="/community" class="nav-item {% if active_page == 'community' %}active{% endif %}">
+                    <i class="fas fa-users"></i><span>Community</span>
+                </a>
+                <a href="/farming-guide" class="nav-item {% if active_page == 'guide' %}active{% endif %}">
+                    <i class="fas fa-book"></i><span>Farming Guide</span>
+                </a>
+                <a href="/tutorials" class="nav-item {% if active_page == 'tutorials' %}active{% endif %}">
+                    <i class="fas fa-video"></i><span>Tutorials</span>
+                </a>
+                <a href="/pest-control" class="nav-item {% if active_page == 'pest_control' %}active{% endif %}">
+                    <i class="fas fa-bug"></i><span>Pest Control</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="logout-button" onclick="window.location.href='/logout'">
+                    <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Global "Proper" Navbar -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" style="background: none; border: none; color: var(--text-color); cursor: pointer; padding: 10px; border-radius: 8px; transition: background 0.2s;">
+                        <i class="fas fa-bars" style="font-size: 20px;"></i>
+                    </button>
+                    <a href="/" class="nav-link {% if active_page == 'home' %}active{% endif %}" style="display: flex; align-items: center; gap: 8px; margin-left: 10px; text-decoration: none; color: var(--text-color); font-weight: 600; font-size: 14px;">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </div>
+
+                <!-- Center Quick Links (Maintained for future expansion) -->
+                <nav class="nav-center-links">
+                </nav>
+
+                <div class="header-right">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark mode" onclick="toggleTheme()" style="background: var(--bg-tertiary); border: none; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #f59e0b; transition: all 0.2s; cursor: pointer;">
+                        <i class="fas fa-sun block-light-only" id="sun-icon"></i>
+                        <i class="fas fa-moon hidden-light-only" id="moon-icon"></i>
+                    </button>
+                    <div class="user-info" onclick="toggleProfileModal()" style="cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--bg-tertiary); border-radius: 12px; transition: all 0.2s; border: 1px solid transparent;" onmouseover="this.style.borderColor='var(--green-primary)'" onmouseout="this.style.borderColor='transparent'">
+                        <i class="fas fa-user-circle" style="font-size: 20px; color: var(--green-primary);"></i>
+                        <span class="hidden sm:inline" style="font-weight: 600; font-size: 14px;">{{ session.user_name or 'Profile' }}</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Specific Content -->
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    <!-- Profile Modal (Pro Edition) -->
+    <div id="profile-modal" class="profile-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+        <div class="profile-modal-card" style="width: 90%; max-width: 500px; background: var(--bg-secondary); border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: translateY(20px); transition: transform 0.3s ease;">
+            <!-- Modal Header -->
+            <div style="background: linear-gradient(135deg, var(--green-primary), var(--green-dark)); padding: 40px 30px; text-align: center; position: relative;">
+                <button onclick="toggleProfileModal()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div style="width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
+                    <i class="fas fa-user" style="font-size: 40px; color: var(--green-primary);"></i>
+                </div>
+                <h3 id="modal-full-name" style="color: white; margin: 0; font-size: 24px; font-weight: 700;">{{ session.user_name or 'Farmer' }}</h3>
+                <p id="modal-email" style="color: rgba(255,255,255,0.8); margin: 5px 0 0; font-size: 14px;">{{ session.user_email }}</p>
+            </div>
+            
+            <!-- Modal Content -->
+            <div style="padding: 30px; color: var(--text-primary);">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 5px;">Phone Number</label>
+                        <p id="modal-phone" style="margin: 0; font-weight: 600;">Not Provided</p>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 5px;">Location</label>
+                        <p id="modal-location" style="margin: 0; font-weight: 600;">Not Provided</p>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 5px;">Farm Size</label>
+                        <p id="modal-land" style="margin: 0; font-weight: 600;">Not Provided</p>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 5px;">Soil Type</label>
+                        <p id="modal-soil" style="margin: 0; font-weight: 600;">Not Provided</p>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                    <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 5px;">Current Crops</label>
+                    <p id="modal-crops" style="margin: 0; font-weight: 600;">Not Provided</p>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div style="padding: 20px 30px; background: var(--bg-tertiary); text-align: center;">
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">Profile details are read-only. Contact support to update.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleProfileModal() {
+            const modal = document.getElementById('profile-modal');
+            const card = modal.querySelector('.profile-modal-card');
+            
+            if (modal.style.display === 'none') {
+                // Fetch latest data from API
+                fetch('/api/profile')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const p = data.profile;
+                            document.getElementById('modal-full-name').textContent = p.full_name || 'Farmer';
+                            document.getElementById('modal-email').textContent = data.email;
+                            document.getElementById('modal-phone').textContent = p.phone_number || 'Not Provided';
+                            document.getElementById('modal-location').textContent = (p.city && p.state) ? `${p.city}, ${p.state}` : 'Not Provided';
+                            document.getElementById('modal-land').textContent = p.land_area ? `${p.land_area} ${p.land_unit || 'acre'}` : 'Not Provided';
+                            document.getElementById('modal-soil').textContent = p.soil_type || 'Not Provided';
+                            document.getElementById('modal-crops').textContent = p.current_crops || 'Not Provided';
+                        }
+                    });
+
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 10);
+            } else {
+                modal.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('profile-modal');
+            if (event.target == modal) {
+                toggleProfileModal();
+            }
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

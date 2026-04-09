@@ -1,0 +1,9 @@
+Flask==3.0.3
+requests==2.31.0
+python-dotenv==1.0.1
+google-genai==0.3.0
+supabase==2.4.5
+cryptography==42.0.5
+groq==0.5.0
+markdown2==2.4.13
+gunicorn==21.2.0

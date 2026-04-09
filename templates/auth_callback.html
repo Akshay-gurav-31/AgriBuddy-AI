@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirming your account... | AgriBuddy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a4a1a 0%, #2d7a2d 50%, #1a4a1a 100%);
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #7fff7f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            opacity: 0.75;
+            font-size: 0.95rem;
+        }
+
+        .error {
+            color: #ff8a80;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h2>Confirming your email...</h2>
+        <p>You are being redirected to the homepage.</p>
+        <div class="error" id="errorBox"></div>
+    </div>
+
+    <script>
+        // Supabase sends tokens in the URL hash fragment: #access_token=...&refresh_token=...
+        function getHashParams() {
+            const hash = window.location.hash.substring(1);
+            const params = {};
+            hash.split('&').forEach(pair => {
+                const [key, value] = pair.split('=');
+                if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+            });
+            return params;
+        }
+
+        async function handleCallback() {
+            const params = getHashParams();
+            const access_token = params['access_token'];
+            const refresh_token = params['refresh_token'];
+
+            if (!access_token) {
+                showError('Token is missing. Please sign up again or log in.');
+                return;
+            }
+
+            try {
+                const res = await fetch('/auth/set-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ access_token, refresh_token })
+                });
+                const data = await res.json();
+
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    showError(data.error || 'Something went wrong. Please try logging in again.');
+                }
+            } catch (e) {
+                showError('Network error. Please try again.');
+            }
+        }
+
+        function showError(msg) {
+            const box = document.getElementById('errorBox');
+            box.style.display = 'block';
+            box.textContent = msg;
+            document.querySelector('.spinner').style.display = 'none';
+        }
+
+        handleCallback();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>AgriBuddy - Weather Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="/static/theme.js" defer></script>
+    <script>
+        (function () {
+            const t = localStorage.getItem('agribuddy-theme');
+            if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        })();
+    </script>
+    <style>
+        /* Weather dashboard styles moved to style.css */
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-seedling"></i>
+                <h2>AgriBuddy</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/chat-interface" class="nav-item">
+                    <i class="fas fa-comments"></i><span>Chat</span>
+                </a>
+                <a href="/weather-dashboard" class="nav-item active">
+                    <i class="fas fa-cloud-sun"></i><span>Weather</span>
+                </a>
+                <a href="/farming-guide" class="nav-item">
+                    <i class="fas fa-book"></i><span>Farming Guide</span>
+                </a>
+                <a href="/tutorials" class="nav-item">
+                    <i class="fas fa-video"></i><span>Tutorials</span>
+                </a>
+                <a href="/crop-recommendations" class="nav-item">
+                    <i class="fas fa-seedling"></i><span>Crop Recommendations</span>
+                </a>
+                <a href="/pest-control" class="nav-item">
+                    <i class="fas fa-bug"></i><span>Pest Control</span>
+                </a>
+                <a href="/soil-analysis" class="nav-item">
+                    <i class="fas fa-mountain"></i><span>Soil Analysis</span>
+                </a>
+                <a href="/pest-checker" class="nav-item">
+                    <i class="fas fa-search"></i><span>Pest Checker</span>
+                </a>
+                <a href="/community" class="nav-item">
+                    <i class="fas fa-users"></i><span>Community</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="logout-button" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1><i class="fas fa-cloud-sun"></i> Weather Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark mode"
+                        onclick="toggleTheme()">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                    </button>
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="user-email">{{ session.user_email }}</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content weather-dashboard">
+                <!-- Input Section -->
+                <div class="input-section">
+                    <h3><i class="fas fa-search-location"></i> Get Weather Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City Name</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-city"></i>
+                                <input type="text" id="city" placeholder="e.g. Mumbai" value="Mumbai">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="zipCode">ZIP Code (Optional)</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input type="text" id="zipCode" placeholder="e.g. 400001">
+                            </div>
+                        </div>
+                        <div class="form-group align-end">
+                            <button class="btn btn-primary" onclick="getWeather()" id="getWeatherBtn">
+                                <i class="fas fa-cloud-sun"></i> Get Weather
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Charts -->
+                <div class="top-charts-row">
+                    <div class="chart-card-small">
+                        <h3><i class="fas fa-chart-pie"></i> Weather Composition</h3>
+                        <div class="chart-container-small"><canvas id="pieChart"></canvas></div>
+                    </div>
+                    <div class="chart-card-small dot-matrix-card">
+                        <h3><i class="fas fa-braille"></i> Climate Dot Matrix</h3>
+                        <div class="chart-container-small"><canvas id="dotChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Time & Forecast -->
+                <div class="time-forecast-row">
+                    <div class="time-card">
+                        <div class="current-time" id="time">--:--:--</div>
+                        <div class="current-date" id="date">Loading...</div>
+                        <div class="climate-summary">
+                            <div class="climate-item">
+                                <div class="climate-icon"><i class="fas fa-temperature-high"></i></div>
+                                <div class="climate-value" id="temp">--°C</div>
+                            </div>
+                            <div class="climate-item">
+                                <div class="climate-icon"><i class="fas fa-tint"></i></div>
+                                <div class="climate-value" id="humidity">--%</div>
+                            </div>
+                            <div class="climate-item">
+                                <div class="climate-icon"><i class="fas fa-wind"></i></div>
+                                <div class="climate-value" id="wind">-- m/s</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="forecast-card">
+                        <h3><i class="fas fa-calendar-day"></i> 5-Day Forecast</h3>
+                        <div class="forecast-cards" id="forecast"></div>
+                    </div>
+                </div>
+
+                <!-- Detailed Analytics -->
+                <div class="charts-section">
+                    <h3 style="color: var(--primary); margin-bottom: 20px;"><i class="fas fa-chart-line"></i> Analytics
+                    </h3>
+                    <div class="charts-grid">
+                        <div class="analytics-card"><canvas id="tempChart"></canvas></div>
+                        <div class="analytics-card"><canvas id="humidityChart"></canvas></div>
+                        <div class="analytics-card"><canvas id="windChart"></canvas></div>
+                        <div class="analytics-card"><canvas id="visibilityChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let charts = {};
+
+        function getThemeColors() {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            return {
+                text: isLight ? '#475569' : '#94a3b8',
+                grid: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)'
+            };
+        }
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('time').textContent = now.toLocaleTimeString('en-IN', { hour12: false });
+            document.getElementById('date').textContent = now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        function initCharts(data) {
+            const colors = getThemeColors();
+            Object.values(charts).forEach(c => c?.destroy());
+
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: colors.text, font: { family: "'Inter', sans-serif" } } } },
+                scales: {
+                    x: { grid: { color: colors.grid }, ticks: { color: colors.text } },
+                    y: { grid: { color: colors.grid }, ticks: { color: colors.text } }
+                }
+            };
+
+            // Use real forecast data if available
+            const forecast = data.forecast || [];
+            const labels = forecast.map(f => {
+                if (f.dt_txt) {
+                    const date = new Date(f.dt_txt);
+                    return date.getHours() + ":00";
+                }
+                return f.day || "";
+            });
+            const temps = forecast.map(f => typeof f.temp === 'string' ? parseFloat(f.temp) : f.temp);
+            const humidities = forecast.map(f => f.humidity);
+            const winds = forecast.map(f => f.wind_speed);
+
+            // 1. Weather Composition (summarized from forecast)
+            const conditions = forecast.reduce((acc, f) => {
+                const desc = (f.description || f.desc || "").toLowerCase();
+                if (desc.includes('clear')) acc.clear++;
+                else if (desc.includes('rain') || desc.includes('drizzle')) acc.rain++;
+                else acc.clouds++;
+                return acc;
+            }, { clear: 0, clouds: 0, rain: 0 });
+
+            charts.pieChart = new Chart(document.getElementById('pieChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Clear', 'Clouds', 'Rain'],
+                    datasets: [{
+                        data: [conditions.clear, conditions.clouds, conditions.rain],
+                        backgroundColor: ['#fbbf24', '#94a3b8', '#3b82f6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { ...commonOptions, cutout: '75%' }
+            });
+
+            // 2. Climate Dot Matrix (Temp vs Humidity correlation)
+            charts.dotChart = new Chart(document.getElementById('dotChart'), {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Correlation',
+                        data: forecast.map(f => ({ x: f.humidity, y: typeof f.temp === 'string' ? parseFloat(f.temp) : f.temp })),
+                        backgroundColor: 'rgba(16, 185, 129, 0.4)',
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointHoverBackgroundColor: '#10b981'
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        x: { 
+                            ...commonOptions.scales.x, 
+                            title: { display: true, text: 'HUMIDITY %', color: colors.text, font: { size: 10, weight: 'bold' } },
+                            grid: { color: 'rgba(255, 255, 255, 0.03)' }
+                        },
+                        y: { 
+                            ...commonOptions.scales.y, 
+                            title: { display: true, text: 'TEMP °C', color: colors.text, font: { size: 10, weight: 'bold' } },
+                            grid: { color: 'rgba(255, 255, 255, 0.03)' }
+                        }
+                    }
+                }
+            });
+
+            // 3. Temp Trends
+            charts.tempChart = new Chart(document.getElementById('tempChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: temps,
+                        borderColor: '#f97316',
+                        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: commonOptions
+            });
+
+            // 4. Humidity Trends
+            charts.humidityChart = new Chart(document.getElementById('humidityChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Humidity (%)',
+                        data: humidities,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: commonOptions
+            });
+
+            // 5. Wind Trends (Bar)
+            charts.windChart = new Chart(document.getElementById('windChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Wind Speed (m/s)',
+                        data: winds,
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    }]
+                },
+                options: commonOptions
+            });
+
+            // 6. Visibility/Pressure Trends (Simplified)
+            charts.visibilityChart = new Chart(document.getElementById('visibilityChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Forecast Trend',
+                        data: temps.map(t => t * 0.9 + (Math.random() * 2)),
+                        borderColor: '#8b5cf6',
+                        tension: 0.4
+                    }]
+                },
+                options: commonOptions
+            });
+        }
+
+        async function getWeather() {
+            const city = document.getElementById('city').value;
+            const btn = document.getElementById('getWeatherBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+
+            try {
+                const res = await fetch(`/weather?city=${city}`);
+                const data = await res.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                document.getElementById('temp').textContent = `${Math.round(data.weather.temperature)}°C`;
+                document.getElementById('humidity').textContent = `${data.weather.humidity}%`;
+                document.getElementById('wind').textContent = `${data.weather.wind_speed} m/s`;
+
+                updateForecast(data.forecast);
+                initCharts(data);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-cloud-sun"></i> Get Weather';
+            }
+        }
+
+        function updateForecast(forecast) {
+            const container = document.getElementById('forecast');
+
+            const dailyData = [];
+            const seenDays = new Set();
+
+            (forecast || []).forEach(f => {
+                if (f.dt_txt) {
+                    const date = new Date(f.dt_txt);
+                    const dayName = date.toLocaleDateString('en-IN', { weekday: 'short' });
+                    const hour = date.getHours();
+
+                    if (!seenDays.has(dayName) || hour === 12) {
+                        if (!seenDays.has(dayName)) {
+                            dailyData.push(f);
+                            seenDays.add(dayName);
+                        } else if (hour === 12) {
+                            const idx = dailyData.findIndex(d => new Date(d.dt_txt).toLocaleDateString('en-IN', { weekday: 'short' }) === dayName);
+                            if (idx !== -1) dailyData[idx] = f;
+                        }
+                    }
+                } else {
+                    dailyData.push(f);
+                }
+            });
+
+            container.innerHTML = dailyData.slice(0, 5).map(f => {
+                let dayName = "Day";
+                let iconClass = f.icon || "fas fa-cloud";
+
+                if (f.dt_txt) {
+                    dayName = new Date(f.dt_txt).toLocaleDateString('en-IN', { weekday: 'short' });
+                    const code = f.icon_code;
+                    if (code) {
+                        if (code.includes('01')) iconClass = "fas fa-sun";
+                        else if (code.includes('02')) iconClass = "fas fa-cloud-sun";
+                        else if (code.includes('03') || code.includes('04')) iconClass = "fas fa-cloud";
+                        else if (code.includes('09') || code.includes('10')) iconClass = "fas fa-cloud-showers-heavy";
+                        else if (code.includes('11')) iconClass = "fas fa-bolt";
+                        else iconClass = "fas fa-cloud";
+                    }
+                } else if (f.day) {
+                    dayName = f.day;
+                    iconClass = f.icon;
+                }
+
+                const temp = typeof f.temp === 'number' ? Math.round(f.temp) + '°C' : f.temp;
+
+                return `
+                    <div class="forecast-day">
+                        <div class="forecast-day-name">${dayName}</div>
+                        <div class="forecast-icon"><i class="${iconClass}"></i></div>
+                        <div class="forecast-temp">${temp}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            getWeather();
+        });
+    </script>
+</body>
+
+</html>

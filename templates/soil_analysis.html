@@ -1,0 +1,263 @@
+{% extends "layout.html" %}
+
+{% block title %}Soil Analysis{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Extra styling specific to Soil Analysis results */
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 28px;
+        margin-top: 28px;
+        display: none; /* Shown via JS */
+    }
+    
+    .stat-card-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+
+    .rating-badge {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 20px;
+        display: inline-block;
+        margin-top: 12px;
+    }
+
+    .soil-table-container {
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+
+    .soil-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .soil-table th, .soil-table td {
+        padding: 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .soil-table th {
+        background: var(--bg-tertiary);
+        color: var(--green-primary);
+    }
+
+    @media (max-width: 900px) {
+        .results-grid { grid-template-columns: 1fr; }
+        .stat-card-grid { grid-template-columns: 1fr 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <div class="dashboard-card" style="margin-bottom: 28px;">
+        <h3><i class="fas fa-vial"></i> Soil Analysis Tool</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 24px;">Enter soil test results to get instant analysis and farming recommendations</p>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label><i class="fas fa-vial"></i> pH Level</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-vial"></i>
+                    <input type="number" id="ph-level" placeholder="e.g. 6.5" step="0.1" min="0" max="14">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-leaf"></i> Nitrogen (N) - ppm</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-leaf"></i>
+                    <input type="number" id="nitrogen" placeholder="e.g. 35" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-seedling"></i> Phosphorus (P) - ppm</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-seedling"></i>
+                    <input type="number" id="phosphorus" placeholder="e.g. 25" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-sun"></i> Potassium (K) - ppm</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-sun"></i>
+                    <input type="number" id="potassium" placeholder="e.g. 80" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-tractor"></i> Organic Matter (%)</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-tractor"></i>
+                    <input type="number" id="organic-matter" placeholder="e.g. 3.5" step="0.1" min="0" max="100">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-mountain"></i> Soil Type</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-mountain"></i>
+                    <select id="soil-type" style="width:100%; padding: 14px 14px 14px 48px; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-primary); color: var(--text-primary); appearance: none;">
+                        <option value="">Select type</option>
+                        <option value="clay">Clay</option>
+                        <option value="sandy">Sandy</option>
+                        <option value="loamy">Loamy</option>
+                        <option value="silty">Silty</option>
+                        <option value="peaty">Peaty</option>
+                        <option value="chalky">Chalky</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button class="send-button" onclick="analyzeSoil()" style="width: 100%; border-radius: 12px; margin-top: 24px; gap: 12px; font-weight: 600;">
+            <i class="fas fa-search"></i> Analyze Soil
+        </button>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-section" class="results-grid">
+        <div class="dashboard-card">
+            <h3><i class="fas fa-chart-bar"></i> Analysis Results</h3>
+            <div id="analysis-results"></div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3><i class="fas fa-lightbulb"></i> Recommendations</h3>
+            <div id="recommendations" class="recommendations"></div>
+        </div>
+    </div>
+
+    <!-- Standards & Rating -->
+    <div class="dashboard-card">
+        <h3><i class="fas fa-book"></i> Soil Quality Standards</h3>
+        <div class="soil-table-container">
+            <table class="soil-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Optimal Range</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>pH Level</td><td>6.0 - 7.0</td><td><span style="color:var(--success-color)">Good</span></td><td>Ideal for most crops</td></tr>
+                    <tr><td>Nitrogen</td><td>20 - 50 ppm</td><td><span style="color:var(--yellow-primary)">Medium</span></td><td>Add compost</td></tr>
+                    <tr><td>Phosphorus</td><td>15 - 30 ppm</td><td><span style="color:var(--success-color)">Good</span></td><td>Adequate</td></tr>
+                    <tr><td>Potassium</td><td>50 - 150 ppm</td><td><span style="color:var(--error-color)">Low</span></td><td>Add potash</td></tr>
+                    <tr><td>Organic Matter</td><td>3 - 5%</td><td><span style="color:var(--yellow-primary)">Medium</span></td><td>Add manure</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h4 style="margin: 28px 0 16px;"><i class="fas fa-star"></i> Soil Rating System</h4>
+        <div class="stats-grid">
+            <div class="stat-card"><i class="fas fa-check-circle" style="color:var(--success-color)"></i><h4>Excellent</h4><p>Target Optimal</p></div>
+            <div class="stat-card"><i class="fas fa-thumbs-up" style="color:var(--blue-light)"></i><h4>Good</h4><p>Minor fixes</p></div>
+            <div class="stat-card"><i class="fas fa-exclamation-triangle" style="color:var(--yellow-primary)"></i><h4>Fair</h4><p>Needs work</p></div>
+            <div class="stat-card"><i class="fas fa-times-circle" style="color:var(--error-color)"></i><h4>Poor</h4><p>Major fixes</p></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function analyzeSoil() {
+        const ph = parseFloat(document.getElementById('ph-level').value);
+        const n = parseFloat(document.getElementById('nitrogen').value);
+        const p = parseFloat(document.getElementById('phosphorus').value);
+        const k = parseFloat(document.getElementById('potassium').value);
+        const om = parseFloat(document.getElementById('organic-matter').value);
+        const soilType = document.getElementById('soil-type').value;
+
+        if (isNaN(ph) || isNaN(n) || isNaN(p) || isNaN(k)) {
+            alert('Please fill pH, N, P, K values');
+            return;
+        }
+
+        document.getElementById('results-section').style.display = 'grid';
+
+        // Analysis Results
+        let html = `<div class="stat-card-grid">
+            <div class="stat-card"><i class="fas fa-vial"></i><h4>pH</h4><p>${ph}</p></div>
+            <div class="stat-card"><i class="fas fa-leaf"></i><h4>Nitrogen</h4><p>${n} ppm</p></div>
+            <div class="stat-card"><i class="fas fa-seedling"></i><h4>Phosphorus</h4><p>${p} ppm</p></div>
+            <div class="stat-card"><i class="fas fa-sun"></i><h4>Potassium</h4><p>${k} ppm</p></div>`;
+
+        if (!isNaN(om)) html += `<div class="stat-card"><i class="fas fa-tractor"></i><h4>Organic Matter</h4><p>${om}%</p></div>`;
+        if (soilType) html += `<div class="stat-card"><i class="fas fa-mountain"></i><h4>Soil Type</h4><p>${soilType}</p></div>`;
+
+        const rating = calculateRating(ph, n, p, k, om);
+        html += `</div><div style="text-align:center;"><div class="rating-badge" style="background:rgba(16, 185, 129, 0.1); color:${getColor(rating)}; border: 1px solid ${getColor(rating)}">Overall Quality: ${rating}</div></div>`;
+        document.getElementById('analysis-results').innerHTML = html;
+
+        // Recommendations
+        let rec = '<ul>';
+        if (ph < 6.0) rec += '<li><i class="fas fa-arrow-up"></i> Add lime to increase pH</li>';
+        else if (ph > 7.5) rec += '<li><i class="fas fa-arrow-down"></i> Add sulfur to lower pH</li>';
+        else rec += '<li><i class="fas fa-check"></i> pH is optimal</li>';
+
+        if (n < 20) rec += '<li><i class="fas fa-plus"></i> Add nitrogen fertilizer</li>';
+        else if (n > 50) rec += '<li><i class="fas fa-exclamation-triangle"></i> Nitrogen too high</li>';
+        else rec += '<li><i class="fas fa-check"></i> Nitrogen adequate</li>';
+
+        if (p < 15) rec += '<li><i class="fas fa-plus"></i> Add bone meal for phosphorus</li>';
+        else rec += '<li><i class="fas fa-check"></i> Phosphorus good</li>';
+
+        if (k < 50) rec += '<li><i class="fas fa-plus"></i> Add wood ash or potash</li>';
+        else rec += '<li><i class="fas fa-check"></i> Potassium sufficient</li>';
+
+        if (om < 3) rec += '<li><i class="fas fa-plus"></i> Add compost/manure</li>';
+
+        if (soilType) {
+            rec += `<h4>Soil Type Tips:</h4><ul>`;
+            const tips = {
+                clay: ['Add sand for drainage', 'Avoid wet soil work'],
+                sandy: ['Add compost for retention', 'Frequent small fertilizers'],
+                loamy: ['Ideal soil - maintain it!'],
+                silty: ['Add organic matter', 'Avoid compaction'],
+                peaty: ['Monitor acidity', 'Add sand/clay'],
+                chalky: ['Add humus', 'Check for alkalinity']
+            };
+            (tips[soilType] || []).forEach(t => rec += `<li><i class="fas fa-info-circle"></i> ${t}</li>`);
+            rec += `</ul>`;
+        }
+
+        rec += `</ul>`;
+        document.getElementById('recommendations').innerHTML = rec;
+
+        document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function calculateRating(ph, n, p, k, om) {
+        let score = 0, count = 0;
+        if (ph >= 6 && ph <= 7) score += 2; else if (ph >= 5.5 && ph <= 7.5) score += 1; count++;
+        if (n >= 20 && n <= 50) score += 2; else if (n >= 15 && n <= 60) score += 1; count++;
+        if (p >= 15 && p <= 30) score += 2; else if (p >= 10 && p <= 40) score += 1; count++;
+        if (k >= 50 && k <= 150) score += 2; else if (k >= 30 && k <= 200) score += 1; count++;
+        if (om >= 3 && om <= 5) score += 2; else if (om >= 2 && om <= 7) score += 1; count++;
+        const avg = score / count;
+        if (avg >= 1.8) return 'Excellent';
+        if (avg >= 1.4) return 'Good';
+        if (avg >= 1.0) return 'Fair';
+        return 'Poor';
+    }
+
+    function getColor(r) {
+        return {Excellent: '#6ee7b7', Good: '#93c5fd', Fair: '#fbbf24', Poor: '#f87171'}[r] || '#94a3b8';
+    }
+</script>
+{% endblock %}

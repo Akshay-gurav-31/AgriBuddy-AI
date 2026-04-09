@@ -1,0 +1,411 @@
+{% extends "layout.html" %}
+
+{% block title %}Community{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Chat specific styles */
+    .community-wrapper {
+        display: block; /* Full width */
+        height: calc(100vh - 64px);
+    }
+
+    .chat-panel {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-primary);
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .chat-sub-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+        backdrop-filter: blur(14px);
+        flex-shrink: 0;
+    }
+
+    .chat-header-left { display: flex; align-items: center; gap: 12px; }
+    .group-info { display: flex; align-items: center; gap: 10px; }
+    .group-avatar {
+        width: 42px; height: 42px; background: #ffffff; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; padding: 2px;
+        border: 1px solid var(--border-color); flex-shrink: 0;
+    }
+    .group-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .group-name { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+    .group-meta { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+    .messages-area {
+        flex: 1; overflow-y: auto; padding: 20px; display: flex;
+        flex-direction: column; gap: 12px; scroll-behavior: smooth;
+    }
+    .messages-loading { display: none; align-items: center; justify-content: center; gap: 10px; color: var(--text-secondary); font-size: 13px; padding: 14px; }
+    .messages-loading.visible { display: flex; }
+    .messages-loading i { color: var(--green-primary); animation: spin 1s linear infinite; }
+
+    .date-divider { text-align: center; font-size: 11px; color: var(--text-secondary); position: relative; margin: 8px 0; }
+    .date-divider::before, .date-divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: var(--border-color); }
+    .date-divider::before { left: 0; } .date-divider::after { right: 0; }
+
+    .load-older-btn { border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); font-size: 12px; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+    .message-bubble { display: flex; gap: 10px; max-width: 75%; animation: msgIn 0.25s ease; }
+    @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .message-bubble.own { align-self: flex-end; flex-direction: row-reverse; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+    .msg-bubble-inner { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 14px; border-top-left-radius: 4px; padding: 10px 14px; max-width: 100%; word-break: break-word; }
+    .own .msg-bubble-inner { background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.3); border-top-left-radius: 14px; border-top-right-radius: 4px; }
+    .msg-text { font-size: 14px; color: var(--text-primary); line-height: 1.5; }
+
+    .message-input-area { padding: 14px 20px; background: var(--bg-secondary); border-top: 1px solid var(--border-color); flex-shrink: 0; }
+    .input-bar { display: flex; align-items: flex-end; gap: 10px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 14px; padding: 10px 14px; }
+    .input-bar textarea { flex: 1; background: none; border: none; color: var(--text-primary); font-size: 14px; resize: none; outline: none; min-height: 24px; max-height: 80px; }
+
+
+
+    @media (max-width: 768px) {
+        .community-wrapper { grid-template-columns: 1fr; }
+        .members-panel { display: none; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="community-wrapper">
+    <!-- CHAT PANEL -->
+    <div class="chat-panel">
+        <div class="chat-sub-header">
+            <div class="group-info">
+                <div class="group-avatar">
+                    <img src="/community/logo" alt="AgriBuddy logo" draggable="false">
+                </div>
+                <div>
+                    <div class="group-name">AgriBuddy Community</div>
+                    <div class="group-meta" id="online-count">Loading members...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="messages-area" id="messages-area">
+            <div class="messages-loading" id="messages-loading">
+                <i class="fas fa-spinner"></i>
+                <span>Loading community chat...</span>
+            </div>
+            <div class="load-older-wrap" style="text-align: center; margin-bottom: 10px;">
+                <button class="load-older-btn" id="load-older-btn" onclick="loadOlderMessages()" style="display:none;">
+                    Load older messages
+                </button>
+            </div>
+            <div class="date-divider">Today</div>
+        </div>
+
+        <!-- Input -->
+        <div class="message-input-area">
+            <div class="image-preview-bar" id="image-preview-bar" style="display:none; align-items:center; gap:10px; background:rgba(16, 185, 129, 0.1); border:1px solid rgba(16, 185, 129, 0.3); border-radius:10px; padding:8px 12px; margin-bottom:10px;">
+                <img src="" alt="preview" class="preview-thumb" id="preview-thumb" style="width:44px; height:44px; object-fit:cover; border-radius:6px;">
+                <span class="preview-name" id="preview-name" style="font-size:12px; color:var(--green-primary); flex:1;">image.jpg</span>
+                <button class="preview-remove" onclick="clearImage()" style="background:none; border:none; color:#ef4444; cursor:pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="input-bar">
+                <textarea id="msg-input" placeholder="Type a message..." rows="1" maxlength="500" oninput="onInput(this)" onkeydown="handleKey(event)"></textarea>
+                <div class="input-actions" style="display:flex; gap:8px; align-items:center;">
+                    <label class="icon-btn" title="Attach image" style="cursor:pointer; color:var(--text-secondary);">
+                        <i class="fas fa-image"></i>
+                        <input type="file" id="img-upload" accept=".png,.jpg,.jpeg" style="display:none" onchange="handleImageSelect(this)">
+                    </label>
+                    <button class="send-btn" id="send-btn" onclick="sendMessage()" style="background:var(--green-primary); border:none; color:white; width:36px; height:36px; border-radius:50%; cursor:pointer;">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="typing-status" style="min-height:16px; margin-top:6px; font-size:12px; color:var(--text-secondary); font-style:italic;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Lightbox & Context Menu -->
+<div id="lightbox" onclick="closeLightbox()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center;">
+    <button style="position:absolute; top:20px; right:24px; color:white; font-size:28px; background:none; border:none; cursor:pointer;"><i class="fas fa-times"></i></button>
+    <img id="lightbox-img" src="" style="max-width:90vw; max-height:90vh; border-radius:10px;">
+</div>
+
+<div id="message-context-menu" style="position:fixed; z-index:10000; background:rgba(15,23,42,0.98); border:1px solid var(--border-color); border-radius:10px; min-width:150px; padding:6px; display:none;">
+    <button id="delete-message-btn" style="width:100%; border:none; background:transparent; color:#ef4444; text-align:left; padding:8px 10px; cursor:pointer;">
+        <i class="fas fa-trash"></i> Delete message
+    </button>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const CURRENT_USER = "{{ session.user_email | default('anonymous') }}";
+    const CURRENT_USERNAME = "{{ community_username | default('anonymous') }}";
+    const MAX_CHARS = 500;
+    const DELETED_MARKER = '__DELETED__';
+
+    let selectedImageFile = null;
+    let selectedImageBase64 = null;
+    let communityStream = null;
+    const seenMessageIds = new Set();
+    const typingUsers = new Map();
+    let typingSent = false;
+    let lastTypingSentAt = 0;
+    let oldestLoadedAt = null;
+    let hasMoreMessages = false;
+    let isLoadingOlder = false;
+    let selectedMessageIdForDelete = null;
+
+    const AVATAR_COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899'];
+    function getAvatarColor(str) {
+        let hash = 0; for (let c of str) hash = c.charCodeAt(0) + ((hash << 5) - hash);
+        return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+    }
+    function getInitials(username) { return username.slice(0, 2).toUpperCase(); }
+
+    async function loadMessages() {
+        setMessagesLoading(true);
+        try {
+            const res = await fetch('/community/messages?limit=15');
+            const data = await res.json();
+            if (data.messages) {
+                renderMessages(data.messages);
+                oldestLoadedAt = data.messages.length ? data.messages[0].created_at : null;
+            }
+            if (data.members) {
+                document.getElementById('online-count').textContent = `${data.members.length} members`;
+            }
+            hasMoreMessages = !!data.has_more;
+            updateLoadOlderButton();
+        } catch (e) {
+            console.error('Failed to load messages:', e);
+        } finally {
+            setMessagesLoading(false);
+        }
+    }
+
+    async function loadOlderMessages() {
+        if (isLoadingOlder || !hasMoreMessages || !oldestLoadedAt) return;
+        isLoadingOlder = true;
+        updateLoadOlderButton(true, 'Loading...');
+        try {
+            const res = await fetch(`/community/messages?limit=15&before=${encodeURIComponent(oldestLoadedAt)}`);
+            const data = await res.json();
+            const older = data.messages || [];
+            prependMessagesToDOM(older);
+            if (older.length) oldestLoadedAt = older[0].created_at;
+            hasMoreMessages = !!data.has_more;
+        } catch (e) { console.error(e); } finally { isLoadingOlder = false; updateLoadOlderButton(); }
+    }
+
+    function renderMessages(messages) {
+        const area = document.getElementById('messages-area');
+        const loading = area.querySelector('.messages-loading');
+        const loadOlderWrap = area.querySelector('.load-older-wrap');
+        const divider = area.querySelector('.date-divider');
+        area.innerHTML = '';
+        if (loading) area.appendChild(loading);
+        if (loadOlderWrap) area.appendChild(loadOlderWrap);
+        if (divider) area.appendChild(divider);
+        seenMessageIds.clear();
+        messages.forEach(msg => addMessageToDOM(msg, false));
+        scrollToBottom();
+    }
+
+    function addMessageToDOM(msg, scroll = true) {
+        const messageId = msg.id ? String(msg.id) : null;
+        if (messageId && seenMessageIds.has(messageId)) return;
+        const area = document.getElementById('messages-area');
+        const isOwn = msg.username === CURRENT_USERNAME;
+        const color = getAvatarColor(msg.username);
+        const time = formatTime(msg.created_at);
+        const isDeleted = msg.message === DELETED_MARKER;
+        const messageText = isDeleted ? `${msg.username} deleted this message` : (msg.message ? escapeHtml(msg.message) : '');
+
+        const div = document.createElement('div');
+        div.className = `message-bubble${isOwn ? ' own' : ''}`;
+        if (messageId) div.dataset.messageId = messageId;
+        if (isOwn) div.dataset.own = '1';
+        div.innerHTML = `
+            <div class="avatar" style="background:${color}">${getInitials(msg.username)}</div>
+            <div class="msg-content">
+                <div class="msg-header" style="display:flex; align-items:center; gap:8px;">
+                    <span class="msg-username" style="font-size:12px; font-weight:600; color:var(--green-primary);">${escapeHtml(msg.username)}</span>
+                    <span class="msg-time" style="font-size:10px; color:var(--text-secondary);">${time}</span>
+                </div>
+                <div class="msg-bubble-inner">
+                    ${messageText ? `<div class="msg-text${isDeleted ? ' deleted' : ''}">${messageText}</div>` : ''}
+                    ${(!isDeleted && msg.image_url) ? `<img src="${msg.image_url}" class="msg-image" style="max-width:260px; border-radius:10px; margin-top:6px; cursor:pointer;" onclick="openLightbox('${msg.image_url}')">` : ''}
+                </div>
+            </div>
+        `;
+        area.appendChild(div);
+        if (messageId) seenMessageIds.add(messageId);
+        if (scroll) scrollToBottom();
+    }
+
+    function prependMessagesToDOM(messages) {
+        if (!messages || !messages.length) return;
+        const area = document.getElementById('messages-area');
+        const anchorNode = area.querySelector('.date-divider');
+        const prevHeight = area.scrollHeight;
+        messages.forEach(msg => {
+            const messageId = msg.id ? String(msg.id) : null;
+            if (messageId && seenMessageIds.has(messageId)) return;
+            const isOwn = msg.username === CURRENT_USERNAME;
+            const div = document.createElement('div');
+            div.className = `message-bubble${isOwn ? ' own' : ''}`;
+            if (messageId) div.dataset.messageId = messageId;
+            div.innerHTML = `
+                <div class="avatar" style="background:${getAvatarColor(msg.username)}">${getInitials(msg.username)}</div>
+                <div class="msg-content">
+                    <div class="msg-header" style="display:flex; align-items:center; gap:8px;">
+                        <span class="msg-username" style="font-size:12px; font-weight:600; color:var(--green-primary);">${escapeHtml(msg.username)}</span>
+                        <span class="msg-time" style="font-size:10px; color:var(--text-secondary);">${formatTime(msg.created_at)}</span>
+                    </div>
+                    <div class="msg-bubble-inner">
+                        <div class="msg-text">${escapeHtml(msg.message)}</div>
+                        ${msg.image_url ? `<img src="${msg.image_url}" class="msg-image" style="max-width:260px; border-radius:10px; margin-top:6px; cursor:pointer;" onclick="openLightbox('${msg.image_url}')">` : ''}
+                    </div>
+                </div>
+            `;
+            area.insertBefore(div, anchorNode.nextSibling);
+            if (messageId) seenMessageIds.add(messageId);
+        });
+        area.scrollTop += (area.scrollHeight - prevHeight);
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('msg-input');
+        const text = input.value.trim();
+        if (!text && !selectedImageBase64) return;
+        const btn = document.getElementById('send-btn');
+        btn.disabled = true;
+        try {
+            const res = await fetch('/community/post', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, image_b64: selectedImageBase64 || null })
+            });
+            const data = await res.json();
+            if (data.success) {
+                if (data.message) addMessageToDOM(data.message, true);
+                input.value = ''; input.style.height = 'auto'; clearImage();
+            }
+        } catch (e) { console.error(e); } finally { btn.disabled = false; }
+    }
+
+    function handleImageSelect(input) {
+        const file = input.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            selectedImageBase64 = e.target.result.split(',')[1];
+            document.getElementById('preview-thumb').src = e.target.result;
+            document.getElementById('preview-name').textContent = file.name;
+            document.getElementById('image-preview-bar').style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearImage() {
+        selectedImageBase64 = null;
+        document.getElementById('img-upload').value = '';
+        document.getElementById('image-preview-bar').style.display = 'none';
+    }
+
+    function onInput(el) {
+        el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+        handleTypingInput(el.value.trim().length > 0);
+    }
+
+    function handleTypingInput(hasText) {
+        const now = Date.now();
+        if (hasText) {
+            if (!typingSent || (now - lastTypingSentAt) > 2000) {
+                sendTypingState(true); typingSent = true; lastTypingSentAt = now;
+            }
+        } else if (typingSent) { sendTypingState(false); typingSent = false; }
+    }
+
+    async function sendTypingState(isTyping) {
+        try { fetch('/community/typing', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({is_typing: isTyping}), keepalive: true }); } catch (e) {}
+    }
+
+    function startCommunityStream() {
+        if (!window.EventSource) return;
+        communityStream = new EventSource('/community/stream');
+        communityStream.addEventListener('message', (event) => {
+            try {
+                const payload = JSON.parse(event.data);
+                if (payload.type === 'new_message') addMessageToDOM(payload.payload, true);
+                else if (payload.type === 'typing') handleTypingEvent(payload.payload);
+                else if (payload.type === 'message_deleted') removeMessageById(payload.payload.id);
+            } catch (e) {}
+        });
+    }
+
+    function handleTypingEvent(payload) {
+        if (!payload || payload.username === CURRENT_USERNAME) return;
+        if (payload.is_typing) typingUsers.set(payload.username, Date.now() + 3000);
+        else typingUsers.delete(payload.username);
+        updateTypingStatusDisplay();
+    }
+
+    function updateTypingStatusDisplay() {
+        const el = document.getElementById('typing-status');
+        const names = Array.from(typingUsers.keys());
+        el.textContent = names.length ? (names.length === 1 ? `${names[0]} is typing...` : `${names.slice(0,2).join(', ')} are typing...`) : '';
+    }
+
+
+
+    function removeMessageById(id) {
+        const node = document.querySelector(`.message-bubble[data-message-id="${id}"]`);
+        if (node) {
+            const inner = node.querySelector('.msg-bubble-inner');
+            if (inner) inner.innerHTML = `<div class="msg-text" style="font-style:italic; color:var(--text-secondary)">Message deleted</div>`;
+        }
+    }
+
+    function scrollToBottom() { const area = document.getElementById('messages-area'); area.scrollTop = area.scrollHeight; }
+    function escapeHtml(str) { return str ? str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m])) : ''; }
+    function formatTime(iso) { return iso ? new Date(iso).toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', hour12:true}) : ''; }
+    function openLightbox(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').style.display = 'flex'; }
+    function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
+    function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+    function updateLoadOlderButton(disabled=false, txt='Load older messages') {
+        const btn = document.getElementById('load-older-btn');
+        btn.style.display = hasMoreMessages ? 'inline-flex' : 'none';
+        btn.disabled = disabled; btn.textContent = txt;
+    }
+    function setMessagesLoading(val) { document.getElementById('messages-loading').classList.toggle('visible', val); }
+
+    loadMessages();
+    startCommunityStream();
+    setInterval(() => {
+        const now = Date.now();
+        for(const [u, exp] of typingUsers) if(exp <= now) typingUsers.delete(u);
+        updateTypingStatusDisplay();
+    }, 1000);
+
+    document.getElementById('messages-area').addEventListener('contextmenu', e => {
+        const b = e.target.closest('.message-bubble');
+        if(!b || b.dataset.own !== '1') return;
+        e.preventDefault(); selectedMessageIdForDelete = b.dataset.messageId;
+        const m = document.getElementById('message-context-menu');
+        m.style.left = `${e.clientX}px`; m.style.top = `${e.clientY}px`; m.style.display = 'block';
+    });
+    document.addEventListener('click', e => { if(!document.getElementById('message-context-menu').contains(e.target)) document.getElementById('message-context-menu').style.display='none'; });
+    document.getElementById('delete-message-btn').onclick = async () => {
+        if(!selectedMessageIdForDelete || !confirm('Delete?')) return;
+        try {
+            const res = await fetch(`/community/delete/${selectedMessageIdForDelete}`, {method:'POST'});
+            if((await res.json()).success) removeMessageById(selectedMessageIdForDelete);
+        } catch(e) {}
+    };
+</script>
+{% endblock %}

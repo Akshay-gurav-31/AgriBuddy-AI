@@ -1,0 +1,395 @@
+{% extends "layout.html" %}
+
+{% block title %}Pest & Disease Diagnostic Hub{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --glass-bg: rgba(30, 41, 59, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --accent-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    [data-theme="light"] {
+        --glass-bg: rgba(255, 255, 255, 0.8);
+        --glass-border: rgba(16, 185, 129, 0.2);
+        --card-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.1);
+    }
+
+    .premium-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 30px;
+        transition: transform 0.3s ease;
+    }
+
+    .scanning-hub { text-align: center; max-width: 800px; margin: 0 auto; }
+
+    .upload-zone {
+        position: relative;
+        border: 2px dashed var(--green-primary);
+        border-radius: 20px;
+        padding: 60px 40px;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(16, 185, 129, 0.03);
+        overflow: hidden;
+    }
+
+    .upload-zone:hover {
+        background: rgba(16, 185, 129, 0.08);
+        border-style: solid;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.1);
+    }
+
+    .upload-zone.dragover { background: rgba(16, 185, 129, 0.15); border-style: solid; transform: scale(1.02); }
+
+    .upload-icon {
+        font-size: 64px;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 4px 6px rgba(16, 185, 129, 0.2));
+    }
+
+    .upload-zone h3 { font-size: 1.5rem; margin-bottom: 10px; color: var(--text-primary); }
+    .upload-zone p { color: var(--text-secondary); }
+
+    #imagePreviewContainer {
+        margin-top: 30px;
+        display: none;
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-lg);
+    }
+
+    #imagePreview { width: 100%; max-height: 450px; object-fit: cover; display: block; }
+
+    .scan-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--accent-gradient);
+        box-shadow: 0 0 15px var(--green-primary);
+        z-index: 10;
+        display: none;
+        animation: scanAnim 2.5s infinite linear;
+    }
+
+    @keyframes scanAnim {
+        0% { top: 0; opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { top: 100%; opacity: 0; }
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .status-ready { background: rgba(16, 185, 129, 0.1); color: var(--green-primary); border: 1px solid rgba(16, 185, 129, 0.2); }
+    .status-analyzing { background: rgba(59, 130, 246, 0.1); color: var(--blue-primary); border: 1px solid rgba(59, 130, 246, 0.2); }
+
+    .result-section { display: none; animation: fadeInUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .report-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .report-title { display: flex; align-items: center; gap: 15px; }
+    .report-title i { font-size: 2.5rem; color: var(--green-primary); }
+
+    .report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; }
+
+    .detail-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 24px;
+        transition: all 0.3s ease;
+    }
+
+    .detail-card:hover { background: rgba(255, 255, 255, 0.05); border-color: var(--green-primary); }
+
+    .detail-card h4 {
+        color: var(--green-primary);
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.1rem;
+    }
+
+    .severity-pill { padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .severity-High, .severity-Critical { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .severity-Medium { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .severity-Low { background: rgba(16, 185, 129, 0.15); color: var(--green-primary); border: 1px solid rgba(16, 185, 129, 0.3); }
+
+    .solution-item { display: flex; gap: 12px; margin-bottom: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .solution-item i { color: var(--green-primary); margin-top: 4px; }
+
+    .btn-pro {
+        background: var(--accent-gradient);
+        color: white;
+        padding: 14px 32px;
+        border-radius: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-pro:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); }
+
+    .btn-pro:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(0.5); }
+
+    .pulse { animation: pulse-green 2s infinite; }
+
+    @keyframes pulse-green {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <div class="premium-card scanning-hub">
+        <div id="statusBadge" class="status-badge status-ready">
+            <i class="fas fa-check-circle"></i> System Ready
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <h2 style="font-size: 2.2rem; margin-bottom: 12px; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">AI Plant Surgeon</h2>
+            <p style="color: var(--text-secondary); font-size: 1.1rem;">Upload a photo of your plant's leaves or affected areas for an instant professional diagnosis.</p>
+        </div>
+
+        <div class="upload-zone" id="uploadArea">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h3>Drop image here</h3>
+            <p>or click to browse from gallery</p>
+            <p style="font-size: 0.8rem; margin-top: 15px; opacity: 0.6;">Maximum file size: 10MB • JPG, PNG, WEBP</p>
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        </div>
+
+        <div id="imagePreviewContainer">
+            <div class="scan-overlay" id="scanOverlay"></div>
+            <img id="imagePreview" src="" alt="Diagnostic Preview">
+        </div>
+
+        <div style="margin-top: 40px;">
+            <button class="btn-pro pulse" id="analyzeBtn" disabled onclick="analyzeImage()">
+                <i class="fas fa-microscope"></i> START ANALYSIS
+            </button>
+        </div>
+    </div>
+
+    <div id="resultSection" class="premium-card result-section">
+        <div class="report-header">
+            <div class="report-title">
+                <div id="resultIconWrapper"><i class="fas fa-notes-medical"></i></div>
+                <div>
+                    <h2 id="resultName" style="margin: 0; font-size: 1.8rem;">Diagnosis Pending</h2>
+                    <p id="resultType" style="margin: 0; color: var(--text-secondary);">Identifying biological markers...</p>
+                </div>
+            </div>
+            <div id="severityBadge"></div>
+        </div>
+
+        <div class="report-grid">
+            <div class="detail-card">
+                <h4><i class="fas fa-info-circle"></i> Description</h4>
+                <p id="resultDesc" style="color: var(--text-secondary); line-height: 1.6; margin: 0;">Analyzing visual symptoms and matching with database...</p>
+            </div>
+
+            <div class="detail-card">
+                <h4><i class="fas fa-seedling"></i> Vulnerable Crops</h4>
+                <p id="resultCrops" style="color: var(--text-secondary); margin: 0;">Cross-referencing agricultural data...</p>
+            </div>
+
+            <div class="detail-card" style="grid-column: 1 / -1;">
+                <h4><i class="fas fa-hand-holding-medical"></i> Direct Solutions</h4>
+                <div id="solutionsList"></div>
+            </div>
+
+            <div class="detail-card" style="grid-column: 1 / -1;">
+                <h4><i class="fas fa-shield-alt"></i> Prevention Strategy</h4>
+                <div id="preventionList"></div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <button class="btn btn-secondary" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <i class="fas fa-arrow-up"></i> SCAN ANOTHER
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const uploadArea = document.getElementById('uploadArea');
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const scanOverlay = document.getElementById('scanOverlay');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const statusBadge = document.getElementById('statusBadge');
+    const resultSection = document.getElementById('resultSection');
+
+    // Drag & Drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+        uploadArea.addEventListener(evt, e => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+
+    uploadArea.addEventListener('dragover', () => uploadArea.classList.add('dragover'));
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', (e) => {
+        uploadArea.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    uploadArea.addEventListener('click', () => imageInput.click());
+    imageInput.addEventListener('change', () => handleFiles(imageInput.files));
+
+    function handleFiles(files) {
+        const file = files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreviewContainer.style.display = 'block';
+                analyzeBtn.disabled = false;
+                statusBadge.innerHTML = '<i class="fas fa-image"></i> Image Uploaded';
+                statusBadge.className = 'status-badge status-ready';
+                uploadArea.style.display = 'none';
+                imagePreviewContainer.scrollIntoView({ behavior: 'smooth' });
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    async function analyzeImage() {
+        const file = imageInput.files[0];
+        if (!file && !imagePreview.src) return;
+
+        // Start Visual Feedback
+        analyzeBtn.disabled = true;
+        statusBadge.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing Samples...';
+        statusBadge.className = 'status-badge status-analyzing';
+        scanOverlay.style.display = 'block';
+        resultSection.style.display = 'none';
+
+        try {
+            const formData = new FormData();
+            if (imageInput.files[0]) {
+                formData.append('image', imageInput.files[0]);
+            } else {
+                const blob = await (await fetch(imagePreview.src)).blob();
+                formData.append('image', blob, 'upload.png');
+            }
+
+            const response = await fetch('/pest-checker', { method: 'POST', body: formData });
+            const data = await response.json();
+
+            if (response.ok) {
+                displayResults(data);
+            } else {
+                throw new Error(data.error || 'Diagnostic system failure');
+            }
+        } catch (err) {
+            console.error('Analysis error:', err);
+            statusBadge.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${err.message}`;
+            statusBadge.className = 'status-badge';
+            
+            resultSection.style.display = 'block';
+            document.getElementById('resultName').textContent = 'Analysis Halted';
+            document.getElementById('resultType').textContent = 'Connectivity or System Limit';
+            document.getElementById('severityBadge').innerHTML = '<span class="severity-pill" style="background: rgba(239, 68, 68, 0.1); color: #f87171;">Action Required</span>';
+            document.getElementById('resultDesc').textContent = err.message + " This usually happens when the AI service reaches its free-tier usage limit. Please wait about 60 seconds and try again.";
+            document.getElementById('solutionsList').innerHTML = '<div class="solution-item"><i class="fas fa-clock"></i> <span>Wait 1-2 minutes for quota reset</span></div><div class="solution-item"><i class="fas fa-sync"></i> <span>Refresh the page and try a smaller image</span></div>';
+        } finally {
+            analyzeBtn.disabled = false;
+            scanOverlay.style.display = 'none';
+            statusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Analysis Complete';
+            statusBadge.className = 'status-badge status-ready';
+        }
+    }
+
+    function displayResults(data) {
+        resultSection.style.display = 'block';
+        document.getElementById('resultName').textContent = data.name || 'Unknown Condition';
+        document.getElementById('resultType').textContent = (data.type || 'Pest/Disease') + ' • Detected via AI';
+        const severity = data.severity || 'Low';
+        document.getElementById('severityBadge').innerHTML = `<span class="severity-pill severity-${severity}">${severity} Severity</span>`;
+        document.getElementById('resultDesc').textContent = data.description || 'No detailed description available.';
+        document.getElementById('resultCrops').textContent = data.affected_crops || 'Common agricultural crops';
+        const iconWrapper = document.getElementById('resultIconWrapper');
+        if (data.type === 'Pest') iconWrapper.innerHTML = '<i class="fas fa-bug" style="color: #f87171;"></i>';
+        else if (data.type === 'Disease') iconWrapper.innerHTML = '<i class="fas fa-virus" style="color: #facc15;"></i>';
+        else iconWrapper.innerHTML = '<i class="fas fa-leaf" style="color: var(--green-primary);"></i>';
+
+        const renderList = (id, items) => {
+            const container = document.getElementById(id);
+            container.innerHTML = '';
+            if (!items || items.length === 0) {
+                container.innerHTML = '<p class="solution-item">Consult local agricultural advisor for specific steps.</p>';
+                return;
+            }
+            const arr = Array.isArray(items) ? items : [items];
+            arr.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'solution-item';
+                div.innerHTML = `<i class="fas fa-check"></i> <span>${item}</span>`;
+                container.appendChild(div);
+            });
+        };
+        renderList('solutionsList', data.solutions);
+        renderList('preventionList', data.prevention);
+
+        setTimeout(() => {
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+</script>
+{% endblock %}

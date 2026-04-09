@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block title %}Tutorials{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Tutorial grid specific styling */
+    .tutorial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 24px;
+        margin-top: 20px;
+    }
+    .tutorial-card {
+        background: var(--bg-secondary);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        backdrop-filter: blur(12px);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+    }
+    .tutorial-card:hover { transform: translateY(-8px); border-color: var(--green-primary); }
+    .tutorial-thumbnail { position: relative; width: 100%; height: 180px; overflow: hidden; background: #1e293b; background-size: cover; background-position: center; }
+    .tutorial-thumbnail iframe { width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.5s ease; pointer-events: none; }
+    .tutorial-thumbnail iframe.loaded { opacity: 1; }
+    .loading-indicator { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--green-primary); z-index: 2; }
+    .tutorial-content { padding: 20px; flex: 1; }
+    .tutorial-title { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .tutorial-description { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; }
+    .tutorial-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
+    .play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 40px; opacity: 0.8; transition: all 0.3s ease; z-index: 3; }
+    .tutorial-card:hover .play-icon { transform: translate(-50%, -50%) scale(1.1); opacity: 1; color: var(--green-primary); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <div class="tutorials-section">
+        <h3 style="color: var(--green-primary); margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-play-circle"></i> Recommended Tutorials
+        </h3>
+        <div class="tutorial-grid">
+            <!-- Video 1 -->
+            <div class="tutorial-card" data-video-id="ofWJN4Tw7bo">
+                <div class="tutorial-thumbnail" style="background-image: url('https://img.youtube.com/vi/ofWJN4Tw7bo/maxresdefault.jpg');">
+                    <iframe data-src="https://www.youtube.com/embed/ofWJN4Tw7bo?rel=0" allowfullscreen></iframe>
+                    <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i></div>
+                    <div class="play-icon"><i class="fas fa-play"></i></div>
+                </div>
+                <div class="tutorial-content">
+                    <div class="tutorial-title"><i class="fas fa-leaf"></i> Soil Mix for Indoor Plants</div>
+                    <p class="tutorial-description">Step-by-step guide to create perfect soil mix for healthy indoor plants.</p>
+                    <div class="tutorial-meta">
+                        <span><i class="fas fa-clock"></i> 10 min</span>
+                        <span><i class="fas fa-eye"></i> 125K views</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video 2 -->
+            <div class="tutorial-card" data-video-id="L6EtmGMJflI">
+                <div class="tutorial-thumbnail" style="background-image: url('https://img.youtube.com/vi/L6EtmGMJflI/maxresdefault.jpg');">
+                    <iframe data-src="https://www.youtube.com/embed/L6EtmGMJflI?rel=0" allowfullscreen></iframe>
+                    <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i></div>
+                    <div class="play-icon"><i class="fas fa-play"></i></div>
+                </div>
+                <div class="tutorial-content">
+                    <div class="tutorial-title"><i class="fas fa-seedling"></i> Agriculture Soil Testing</div>
+                    <p class="tutorial-description">Learn professional soil testing for pH, EC, NPK, Zn, and more.</p>
+                    <div class="tutorial-meta">
+                        <span><i class="fas fa-clock"></i> 20 min</span>
+                        <span><i class="fas fa-eye"></i> 89K views</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const cards = document.querySelectorAll('.tutorial-card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const card = entry.target;
+                    const iframe = card.querySelector('iframe');
+                    const loading = card.querySelector('.loading-indicator');
+                    if (iframe && iframe.dataset.src) {
+                        iframe.src = iframe.dataset.src;
+                        iframe.onload = () => {
+                            iframe.classList.add('loaded');
+                            if (loading) loading.style.display = 'none';
+                        };
+                    }
+                    observer.unobserve(card);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        cards.forEach(card => observer.observe(card));
+
+        cards.forEach(card => {
+            card.addEventListener('click', function () {
+                const videoId = this.dataset.videoId;
+                window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+            });
+        });
+    });
+</script>
+{% endblock %}

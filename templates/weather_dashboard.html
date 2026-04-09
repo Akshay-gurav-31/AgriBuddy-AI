@@ -1,0 +1,389 @@
+{% extends "layout.html" %}
+
+{% block title %}Weather Dashboard{% endblock %}
+
+{% block extra_head %}
+<!-- Inter Font and Original Assets -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+    // Theme-aware Tailwind Config
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'agri-bg': 'var(--bg-primary)',
+                    'agri-card': 'var(--bg-secondary)',
+                    'agri-border': 'var(--border-color)',
+                    'agri-accent': 'var(--green-primary)',
+                    'agri-muted': 'var(--text-secondary)',
+                },
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    mono: ['JetBrains Mono', 'monospace'],
+                }
+            }
+        }
+    }
+</script>
+
+<style>
+    /* Bridge between Vanilla Sidebar and Tailwind Widgets */
+    .dashboard-content {
+        padding: 24px !important;
+        overflow-y: auto !important;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .glass-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        box-shadow: var(--shadow-md);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--green-primary), transparent);
+        opacity: 0.4;
+    }
+
+    .card-accent-blue::before { background: linear-gradient(90deg, transparent, #3b82f6, transparent); }
+    .card-accent-purple::before { background: linear-gradient(90deg, transparent, #a855f7, transparent); }
+    .card-accent-amber::before { background: linear-gradient(90deg, transparent, #f59e0b, transparent); }
+
+    .stat-value-hot { color: #ef4444 !important; text-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+    .stat-value-warm { color: #f97316 !important; }
+    .stat-value-cool { color: #3b82f6 !important; text-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+    .stat-value-good { color: var(--green-primary) !important; }
+
+    [data-theme="dark"] .glass-card:hover,
+    html:not([data-theme="light"]) .glass-card:hover {
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+        border-color: var(--green-primary);
+    }
+
+    .chart-glow { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.2)); }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 20px; }
+    .grid-container { height: calc(100vh - 180px); min-height: 600px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Ultra Pro Dashboard Content -->
+<div class="dashboard-content flex-1 h-full">
+    <!-- Search Section -->
+    <section class="flex gap-4 mb-2">
+        <div class="flex-1 glass-card px-5 py-2 flex items-center gap-4 border-agri-border">
+            <i class="fas fa-city text-agri-accent"></i>
+            <div class="flex-1">
+                <label class="block text-[10px] uppercase text-agri-muted font-black tracking-widest mb-0.5">City</label>
+                <input id="city-input" class="bg-transparent border-none p-0 focus:ring-0 w-full text-base font-bold text-agri-muted" type="text" value="Mumbai" />
+            </div>
+        </div>
+        <div class="flex-1 glass-card px-5 py-2 flex items-center gap-4 border-agri-border">
+            <i class="fas fa-map-pin text-blue-400"></i>
+            <div class="flex-1">
+                <label class="block text-[10px] uppercase text-agri-muted font-black tracking-widest mb-0.5">ZIP Code</label>
+                <input id="zip-input" class="bg-transparent border-none p-0 focus:ring-0 w-full text-base font-bold text-agri-muted" type="text" placeholder="Optional" />
+            </div>
+        </div>
+        <button onclick="getWeather()" id="search-btn" class="bg-agri-accent hover:opacity-90 text-white px-8 rounded-2xl font-black text-sm flex items-center gap-3 transition-all shadow-lg active:scale-95">
+            <i class="fas fa-sync-alt"></i> FETCH DATA
+        </button>
+    </section>
+
+    <!-- Grid Layout -->
+    <div class="grid grid-cols-12 gap-5 grid-container">
+        <!-- Left: Clock and Forecast -->
+        <div class="col-span-8 flex flex-col gap-5">
+            <div class="grid grid-cols-5 gap-5 shrink-0">
+                <!-- Main Stats Card -->
+                <div class="col-span-3 glass-card p-6 relative overflow-hidden group">
+                    <div class="flex justify-between relative z-10">
+                        <div>
+                            <span class="text-[10px] uppercase text-agri-accent font-black tracking-widest">Local Pulse</span>
+                            <div class="flex items-baseline gap-3 mt-1">
+                                <span class="text-6xl font-mono font-bold text-agri-accent tabular-nums tracking-tighter" id="main-clock">00:00:00</span>
+                                <span class="text-xl font-black text-agri-accent/70" id="am-pm">--</span>
+                            </div>
+                            <div id="date-display" class="mt-2 text-xs font-bold text-agri-muted uppercase tracking-widest leading-none">-- --- ----</div>
+                        </div>
+                        <div class="text-right">
+                            <span id="current-temp-large" class="text-4xl font-black text-agri-accent block leading-none mb-1">--°C</span>
+                            <span id="current-desc" class="text-[10px] text-agri-muted font-black uppercase">Clear Sky</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-5 gap-3 mt-8 pt-6 border-t border-agri-border">
+                        <div class="text-center">
+                            <div class="text-lg">🌡️</div>
+                            <div id="stat-temp" class="text-xs font-black">--</div>
+                            <div class="text-[8px] text-agri-muted uppercase font-bold">Temp</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg">💧</div>
+                            <div id="stat-humidity" class="text-xs font-black">--</div>
+                            <div class="text-[8px] text-agri-muted uppercase font-bold">Humid</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg">🌬️</div>
+                            <div id="stat-wind" class="text-xs font-black">--</div>
+                            <div class="text-[8px] text-agri-muted uppercase font-bold">Wind</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg">👁️</div>
+                            <div id="stat-visibility" class="text-xs font-black">--</div>
+                            <div class="text-[8px] text-agri-muted uppercase font-bold">Visual</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg">⏲️</div>
+                            <div id="stat-pressure" class="text-xs font-black">--</div>
+                            <div class="text-[8px] text-agri-muted uppercase font-bold">Press</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forecast List -->
+                <div class="col-span-2 glass-card p-5 flex flex-col">
+                    <h3 class="text-[10px] font-black uppercase text-agri-accent tracking-widest mb-3">5-Day Outlook</h3>
+                    <div id="forecast-container" class="space-y-4 flex-1 overflow-y-auto custom-scrollbar pr-1">
+                        <!-- Injected -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lower Charts -->
+            <div class="grid grid-cols-2 gap-5 flex-1 min-h-0">
+                <div class="glass-card p-5 flex flex-col relative overflow-hidden">
+                    <h3 class="text-sm font-black text-agri-accent mb-1">Temperature Flux</h3>
+                    <p class="text-[9px] text-agri-muted font-bold mb-4 uppercase tracking-widest font-mono">24H CYCLE ANALYTICS</p>
+                    <div class="flex-1 relative"><canvas id="tempChart" class="chart-glow"></canvas></div>
+                </div>
+                <div class="glass-card p-5 flex flex-col relative">
+                    <h3 class="text-sm font-black text-blue-400 mb-1">Moisture Density</h3>
+                    <p class="text-[9px] text-agri-muted font-bold mb-6 uppercase tracking-widest font-mono">HYGRO STATS</p>
+                    <div class="flex-1 flex items-center justify-around">
+                        <div class="relative w-32 h-32"><canvas id="humidityDonutChart"></canvas>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center font-black">
+                                <span id="center-humidity-val" class="text-2xl text-agri-accent">--%</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div><span class="text-[8px] text-agri-muted block">COMFORT</span><span id="comfort-level" class="text-[11px] font-black text-agri-accent">SAFE</span></div>
+                            <div><span class="text-[8px] text-agri-muted block">DEW PT</span><span id="dew-point" class="text-[11px] font-black">--°C</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="col-span-4 flex flex-col gap-5 min-h-0">
+            <div class="glass-card card-accent-blue p-5 h-[260px] flex flex-col">
+                <h3 class="text-sm font-black text-blue-400 mb-4 uppercase tracking-tighter">Aero Velocity Map</h3>
+                <div class="flex-1 relative"><canvas id="windChart"></canvas></div>
+            </div>
+            <div class="glass-card p-5 flex-1 flex flex-col items-center justify-center">
+                <h3 class="text-sm font-black text-purple-400 mb-8 self-start uppercase">Atmospheric Pressure</h3>
+                <div class="relative w-48 h-48">
+                    <canvas id="pressureGauge"></canvas>
+                    <div class="absolute bottom-8 left-0 right-0 text-center">
+                        <span id="gauge-pressure-val" class="text-5xl font-black text-agri-accent tracking-tighter tabular-nums">--</span>
+                        <p class="text-[10px] text-agri-muted font-black uppercase tracking-widest mt-2">Millibar Units</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Widgets -->
+    <footer class="grid grid-cols-5 gap-4 mt-2 mb-4">
+        <div class="glass-card p-4 flex flex-col justify-center">
+            <span class="text-[8px] font-black text-agri-muted uppercase tracking-widest block mb-2">Solar Intensity / UV</span>
+            <div class="flex justify-between items-baseline"><span id="uv-val" class="text-2xl font-black">5</span><span class="text-[10px] text-orange-400 font-bold">MODERATE</span></div>
+        </div>
+        <div class="glass-card p-4 flex items-center justify-between">
+            <div class="text-center"><span id="sunrise-time" class="text-xs font-black block">--:-- --</span><span class="text-[8px] text-agri-muted font-bold">RISE</span></div>
+            <div class="w-10 h-0.5 bg-yellow-400/20 border-t border-dashed border-yellow-400/40"></div>
+            <div class="text-center"><span id="sunset-time" class="text-xs font-black block">--:-- --</span><span class="text-[8px] text-agri-muted font-bold">SET</span></div>
+        </div>
+        <div class="glass-card p-4 flex items-center gap-3">
+            <div class="w-10 h-10 bg-agri-bg rounded-xl flex items-center justify-center text-xl">🌖</div>
+            <div><span class="text-[10px] font-black block">Waxing Gibbous</span><span class="text-[8px] text-agri-accent font-bold uppercase">89% Light</span></div>
+        </div>
+        <div class="glass-card card-accent-purple p-4 flex items-baseline justify-between">
+            <div><span class="text-[8px] font-black text-agri-muted block mb-1 uppercase">Air Index (AQI)</span><span id="aqi-val" class="text-2xl font-black">--</span></div>
+            <span id="aqi-status" class="text-[10px] text-agri-accent font-black uppercase">SYNCING</span>
+        </div>
+        <div class="glass-card p-4 flex items-center justify-between">
+            <div><span class="text-[8px] font-black text-agri-muted block mb-1 uppercase">Soil Moisture</span><span class="text-2xl font-black">42%</span></div>
+            <div class="text-blue-400"><i class="fas fa-tint"></i></div>
+        </div>
+    </footer>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let charts = {};
+    let lastWeatherData = null;
+
+    function updateClock() {
+        const now = new Date();
+        let h = now.getHours();
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12; h = h ? h : 12;
+        const hStr = String(h).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('main-clock').textContent = `${hStr}:${m}:${s}`;
+        document.getElementById('am-pm').textContent = ampm;
+        const options = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' };
+        document.getElementById('date-display').textContent = now.toLocaleDateString('en-GB', options).toUpperCase();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function initCharts(data) {
+        Object.values(charts).forEach(c => c?.destroy());
+        const root = getComputedStyle(document.documentElement);
+        const accentColor = root.getPropertyValue('--green-primary').trim() || '#10b981';
+        const textColor = root.getPropertyValue('--text-secondary').trim() || '#64748b';
+        const forecast = data.forecast || [];
+        const labels = forecast.slice(0, 10).map(f => f.dt_txt ? new Date(f.dt_txt).getHours() + ":00" : "");
+        const temps = forecast.slice(0, 10).map(f => parseFloat(f.temp) || 0);
+        const winds = forecast.slice(0, 10).map(f => f.wind_speed || 0);
+
+        const tCtx = document.getElementById('tempChart').getContext('2d');
+        const tGradient = tCtx.createLinearGradient(0, 0, 0, 200);
+        tGradient.addColorStop(0, `${accentColor}33`);
+        tGradient.addColorStop(1, 'transparent');
+
+        charts.temp = new Chart(tCtx, {
+            type: 'line',
+            data: { labels, datasets: [{ data: temps, borderColor: accentColor, backgroundColor: tGradient, borderWidth: 3, tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: accentColor, pointBorderColor: 'white', pointBorderWidth: 2 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, interaction: { intersect: false, mode: 'index' }, scales: { x: { grid: { display: false }, ticks: { color: textColor, font: { size: 9, weight: 'bold' } } }, y: { display: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: textColor, font: { size: 8 } } } } }
+        });
+
+        const hCtx = document.getElementById('humidityDonutChart').getContext('2d');
+        const humVal = data.weather.humidity || 60;
+        const humColor = humVal > 70 ? '#3b82f6' : (humVal < 30 ? '#f97316' : accentColor);
+        charts.humValue = new Chart(hCtx, { type: 'doughnut', data: { datasets: [{ data: [humVal, 100 - humVal], backgroundColor: [humColor, 'rgba(255,255,255,0.05)'], borderWidth: 0, hoverOffset: 4 }] }, options: { cutout: '85%', responsive: true, maintainAspectRatio: false, plugins: { tooltip: { enabled: false } } } });
+
+        const pCtx = document.getElementById('pressureGauge').getContext('2d');
+        const pressVal = data.weather.pressure || 1012;
+        const pressPct = ((pressVal - 990) / (1030 - 990)) * 100;
+        charts.pressure = new Chart(pCtx, { type: 'doughnut', data: { datasets: [{ data: [pressPct, 100 - pressPct], backgroundColor: ['#a855f7', 'rgba(255,255,255,0.05)'], borderWidth: 0 }] }, options: { circumference: 180, rotation: 270, cutout: '88%', responsive: true, maintainAspectRatio: false, plugins: { tooltip: { enabled: false } } } });
+
+        const wCtx = document.getElementById('windChart').getContext('2d');
+        const wGradient = wCtx.createLinearGradient(0, 0, 0, 150);
+        wGradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
+        wGradient.addColorStop(1, 'transparent');
+        charts.wind = new Chart(wCtx, { type: 'line', data: { labels, datasets: [{ data: winds, borderColor: '#3b82f6', backgroundColor: wGradient, borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } } });
+    }
+
+    async function getWeather() {
+        const city = document.getElementById('city-input').value;
+        const zip = document.getElementById('zip-input').value;
+        const btn = document.getElementById('search-btn');
+        btn.innerHTML = 'SYNCING...';
+        try {
+            let url = `/weather?city=${city}`;
+            if (zip) url += `&zip=${zip}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data.error) { alert(data.error); return; }
+
+            const formatTime = (ts) => { if (!ts) return "--:--"; const d = new Date(ts * 1000); return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }); };
+            document.getElementById('sunrise-time').textContent = formatTime(data.weather.sunrise);
+            document.getElementById('sunset-time').textContent = formatTime(data.weather.sunset);
+            
+            if (data.weather.moon) {
+                const moonEl = document.querySelector('footer > div:nth-child(3)');
+                if (moonEl) {
+                    moonEl.querySelector('.rounded-xl').textContent = data.weather.moon.icon;
+                    moonEl.querySelector('span.text-\\[10px\\].font-black').textContent = data.weather.moon.phase;
+                    moonEl.querySelector('span.text-\\[8px\\].text-agri-accent').textContent = `${data.weather.moon.illumination}% LIGHT`;
+                }
+            }
+
+            const temp = Math.round(data.weather.temperature);
+            const rawUv = data.weather.uv_index;
+            const cloudFactor = (100 - (data.weather.clouds || 0)) / 100;
+            const uvVal = rawUv !== null ? Math.round(rawUv) : Math.round(8 * cloudFactor);
+            const uvStatus = uvVal <= 2 ? 'LOW' : (uvVal <= 5 ? 'MODERATE' : (uvVal <= 8 ? 'HIGH' : 'VERY HIGH'));
+            const uvColors = { 'LOW': 'text-agri-accent', 'MODERATE': 'text-orange-400', 'HIGH': 'text-red-400', 'VERY HIGH': 'text-purple-400' };
+            document.getElementById('uv-val').textContent = uvVal;
+            const uvStatusEl = document.querySelector('#uv-val').nextElementSibling;
+            if (uvStatusEl) { uvStatusEl.textContent = uvStatus; uvStatusEl.className = `text-[10px] font-bold ${uvColors[uvStatus]}`; }
+
+            const soilVal = Math.round(20 + (data.weather.humidity * 0.4) + (data.weather.clouds * 0.2) - (temp * 0.1));
+            const soilEl = document.querySelector('footer > div:nth-child(5) .text-2xl');
+            if (soilEl) soilEl.textContent = `${Math.min(95, Math.max(5, soilVal))}%`;
+
+            const tempDisplay = document.getElementById('current-temp-large');
+            tempDisplay.textContent = `${temp}°C`;
+            tempDisplay.className = 'text-4xl font-black block leading-none mb-1 ' + (temp > 35 ? 'stat-value-hot' : (temp < 15 ? 'stat-value-cool' : 'text-agri-accent'));
+            document.getElementById('current-desc').textContent = data.weather.description.toUpperCase();
+            document.getElementById('stat-temp').textContent = `${temp}°C`;
+            document.getElementById('stat-humidity').textContent = `${data.weather.humidity}%`;
+            document.getElementById('stat-wind').textContent = `${Math.round(data.weather.wind_speed * 3.6)}k/h`;
+            document.getElementById('stat-visibility').textContent = `${data.weather.visibility ? Math.round(data.weather.visibility) : 10}km`;
+            document.getElementById('stat-pressure').textContent = data.weather.pressure || '---';
+            document.getElementById('center-humidity-val').textContent = `${data.weather.humidity}%`;
+            document.getElementById('gauge-pressure-val').textContent = data.weather.pressure || '---';
+
+            const aqiMsg = ["Syncing", "Good", "Fair", "Moderate", "Poor", "Critical"];
+            if (data.aqi) {
+                const aqiVal = data.aqi.aqi;
+                document.getElementById('aqi-val').textContent = aqiVal;
+                const statusEl = document.getElementById('aqi-status');
+                statusEl.textContent = aqiMsg[aqiVal].toUpperCase();
+                statusEl.className = 'text-[10px] font-black uppercase ' + (aqiVal === 1 ? 'stat-value-good' : (aqiVal >= 4 ? 'stat-value-hot' : 'stat-value-warm'));
+            }
+
+            const container = document.getElementById('forecast-container');
+            container.innerHTML = '';
+            const daily = (data.forecast || []).filter((f, i) => i % 8 === 0).slice(0, 5);
+            daily.forEach(day => {
+                const date = new Date(day.dt_txt);
+                const dayName = date.toLocaleDateString('en-GB', { weekday: 'short' }).toUpperCase();
+                const iconUrl = `https://openweathermap.org/img/wn/${day.icon_code}@2x.png`;
+                const d = document.createElement('div');
+                d.className = "flex items-center justify-between";
+                d.innerHTML = `<div class="leading-none flex-1"><span class="text-[8px] text-agri-muted block font-black">${dayName}</span><span class="text-[10px] font-black">${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}</span></div><div class="flex-1 flex justify-center"><img src="${iconUrl}" class="w-8 h-8 object-contain" alt="icon"></div><div class="text-right leading-none flex-1"><span class="text-xs font-black block">${Math.round(day.temp)}°</span><span class="text-[8px] text-agri-accent font-bold">${day.humidity}%H</span></div>`;
+                container.appendChild(d);
+            });
+            lastWeatherData = data;
+            initCharts(data);
+        } catch (err) { console.error(err); } finally { btn.innerHTML = 'FETCH DATA'; }
+    }
+
+    window.addEventListener('agribuddyThemeChanged', e => {
+        const isLight = e.detail.theme === 'light';
+        const accentColor = '#059669';
+        const textColor = isLight ? '#475569' : '#94a3b8';
+        if (charts.temp) { charts.temp.data.datasets[0].borderColor = accentColor; charts.temp.data.datasets[0].pointBackgroundColor = accentColor; charts.temp.options.scales.x.ticks.color = textColor; charts.temp.update('none'); }
+        if (charts.humValue) { charts.humValue.data.datasets[0].backgroundColor = [accentColor, 'rgba(255,255,255,0.05)']; charts.humValue.update('none'); }
+        if (charts.wind) charts.wind.update('none');
+        if (charts.pressure) charts.pressure.update('none');
+        if (charts.aqi) { charts.aqi.data.datasets[0].backgroundColor = [accentColor, 'rgba(255,255,255,0.05)']; charts.aqi.update('none'); }
+    });
+
+    document.addEventListener('DOMContentLoaded', getWeather);
+</script>
+{% endblock %}

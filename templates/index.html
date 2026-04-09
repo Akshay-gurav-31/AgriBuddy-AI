@@ -1,0 +1,217 @@
+{% extends "layout.html" %}
+
+{% block title %}Assistant{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Local layout fixes if any */
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Chat Interface -->
+<div class="chat-container">
+    <div class="chat-history" id="chat-history">
+        <div class="message-group">
+            <div class="message ai">
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <p>Hello! I'm AgriBuddy, your AI farming assistant. How can I help you with your farming
+                        today?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="input-area">
+        <div class="location-inputs">
+            <div class="input-wrapper">
+                <i class="fas fa-map-marker-alt"></i>
+                <input type="text" id="weather-city" placeholder="Enter city for weather">
+            </div>
+            <div class="input-wrapper">
+                <i class="fas fa-map-pin"></i>
+                <input type="text" id="weather-zip" placeholder="Or enter ZIP code">
+            </div>
+            <button class="secondary-button" onclick="fetchWeather()">
+                <i class="fas fa-cloud-sun"></i>
+                Get Weather
+            </button>
+        </div>
+        <div class="message-input">
+            <div class="input-wrapper">
+                <i class="fas fa-paper-plane"></i>
+                <input type="text" id="user-input" placeholder="Ask me anything about farming..." onkeypress="handleKeyPress(event)">
+            </div>
+            <button class="send-button" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // DOM Elements
+    const chatHistory = document.getElementById('chat-history');
+    const userInput = document.getElementById('user-input');
+    const weatherCity = document.getElementById('weather-city');
+    const weatherZip = document.getElementById('weather-zip');
+
+    // Functions
+    function sendMessage() {
+        const message = userInput.value.trim();
+        if (message) {
+            // Add user message to chat
+            addMessageToChat(message, 'user');
+            userInput.value = '';
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Make actual API call to Flask backend
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    hideTypingIndicator();
+                    if (data.reply) {
+                        addMessageToChat(data.reply, 'ai');
+                    } else {
+                        addMessageToChat("Sorry, I couldn't process your request. Please try again.", 'ai');
+                    }
+                })
+                .catch(error => {
+                    hideTypingIndicator();
+                    console.error('Error:', error);
+                    addMessageToChat("Sorry, I'm having trouble connecting to the server. Please try again.", 'ai');
+                });
+        }
+    }
+
+    function addMessageToChat(message, sender) {
+        const messageGroup = document.createElement('div');
+        messageGroup.className = 'message-group';
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'message-avatar';
+
+        const icon = document.createElement('i');
+        icon.className = sender === 'user' ? 'fas fa-user' : 'fas fa-robot';
+        avatarDiv.appendChild(icon);
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+
+        const paragraph = document.createElement('p');
+        paragraph.textContent = message;
+        contentDiv.appendChild(paragraph);
+
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(contentDiv);
+        messageGroup.appendChild(messageDiv);
+
+        chatHistory.appendChild(messageGroup);
+
+        // Scroll to bottom
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'typing-indicator';
+        typingIndicator.id = 'typing-indicator';
+
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'message-avatar';
+
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-robot';
+        avatarDiv.appendChild(icon);
+
+        const dotsDiv = document.createElement('div');
+        dotsDiv.className = 'typing-dots';
+
+        for (let i = 0; i < 3; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'typing-dot';
+            dotsDiv.appendChild(dot);
+        }
+
+        typingIndicator.appendChild(avatarDiv);
+        typingIndicator.appendChild(dotsDiv);
+
+        chatHistory.appendChild(typingIndicator);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    function fetchWeather() {
+        const city = weatherCity.value.trim();
+        const zip = weatherZip.value.trim();
+
+        if (!city && !zip) {
+            alert('Please enter a city name or ZIP code');
+            return;
+        }
+
+        const url = `/weather?${city ? `city=${encodeURIComponent(city)}` : `zip=${encodeURIComponent(zip)}`}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    displayWeatherData(data);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching weather:', error);
+                alert('Error fetching weather data');
+            });
+    }
+
+    function displayWeatherData(data) {
+        // Create a weather message
+        let weatherMessage = `Current weather in ${data.city || data.zip}:\n`;
+        weatherMessage += `Temperature: ${data.weather.temperature}°C\n`;
+        weatherMessage += `Condition: ${data.weather.description}\n`;
+        weatherMessage += `Humidity: ${data.weather.humidity}%\n`;
+        weatherMessage += `Wind Speed: ${data.weather.wind_speed} km/h\n\n`;
+        weatherMessage += "5-Day Forecast:\n";
+
+        data.forecast.forEach(day => {
+            weatherMessage += `${day.day}: ${day.temp} - ${day.desc}\n`;
+        });
+
+        addMessageToChat(weatherMessage, 'ai');
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+</script>
+{% endblock %}

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>AgriBuddy - Digital Agronomist</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary": "var(--primary)",
+                      "secondary": "var(--secondary)",
+                      "surface": "var(--bg-surface)",
+                      "on-surface": "var(--text-main)",
+                      "on-surface-variant": "var(--text-muted)",
+                      "surface-container-low": "var(--bg-container)",
+                      "outline-variant": "var(--border-muted)",
+                      "on-primary": "var(--on-primary)"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Inter"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+    </script>
+    <script>
+        (function() {
+            const t = localStorage.getItem('agribuddy-theme');
+            if (t === 'light') {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.setAttribute('data-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <script src="/static/theme.js" defer></script>
+    <style>
+        :root {
+            --primary: #059669; /* Richer Emerald for light mode */
+            --on-primary: #ffffff;
+            --secondary: #0d9488;
+            --bg-surface: #ffffff;
+            --bg-container: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border-muted: rgba(0, 0, 0, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: transparent;
+            --header-bg: rgba(255, 255, 255, 0.8);
+            --footer-bg: #f8fafc;
+        }
+        .dark {
+            --primary: #69f6b8;
+            --on-primary: #002919;
+            --secondary: #5afcd2;
+            --bg-surface: #060e20;
+            --bg-container: #091328;
+            --text-main: #dee5ff;
+            --text-muted: #a3aac4;
+            --border-muted: transparent;
+            --glass-bg: rgba(25, 37, 64, 0.4);
+            --glass-border: transparent;
+            --header-bg: rgba(15, 23, 42, 0.4);
+            --footer-bg: #020617;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-surface); color: var(--text-main); }
+        img { user-select: none; -webkit-user-drag: none; pointer-events: auto; }
+        
+        /* Theme Toggle Icons */
+        html:not(.dark) #moon-icon { display: none !important; }
+        html:not(.dark) #sun-icon { display: inline-block !important; }
+        html.dark #moon-icon { display: inline-block !important; }
+        html.dark #sun-icon { display: none !important; }
+        
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+        }
+        header { background: var(--header-bg); }
+        footer { background: var(--footer-bg); }
+        .bg-surface-container-low { background: var(--bg-container); }
+        .text-on-surface-variant { color: var(--text-muted); }
+        h1, h2, h3, h4, .font-bold { color: var(--text-main); }
+
+        .text-glow {
+            text-shadow: 0 0 15px rgba(105, 246, 184, 0.4);
+        }
+        @keyframes scan {
+            from { top: 0; }
+            to { top: 100%; }
+        }
+
+        /* Responsive refinements */
+        @media (max-width: 640px) {
+            .hero-title { font-size: 2.8rem !important; line-height: 1.1 !important; }
+            .section-padding { padding-top: 6rem !important; padding-bottom: 4rem !important; }
+        }
+    </style>
+</head>
+    <body class="selection:bg-primary selection:text-on-primary overflow-x-hidden">
+    <!-- Top Nav Bar -->
+    <header class="fixed top-0 w-full z-50 backdrop-blur-xl border-b border-slate-700/20 shadow-[0_8px_32px_0_rgba(105,246,184,0.06)] h-20">
+        <div class="flex justify-between items-center max-w-[1600px] mx-auto px-8 lg:px-12 h-full">
+            <div class="flex items-center gap-8">
+                <a href="/" class="flex items-center gap-3 group">
+                    <i class="fas fa-seedling text-primary text-3xl group-hover:rotate-12 transition-transform h-10 w-10 flex items-center justify-center"></i>
+                    <h1 class="text-2xl font-bold tracking-tighter text-emerald-500 dark:text-primary">AgriBuddy</h1>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a class="text-emerald-400 font-semibold border-b-2 border-emerald-400 pb-1 Inter font-medium tracking-tight text-sm" href="/weather-dashboard">Features</a>
+                    <a class="text-slate-300 hover:text-emerald-300 transition-colors Inter font-medium tracking-tight text-sm" href="/community">Community</a>
+                    <a class="text-slate-300 hover:text-emerald-300 transition-colors Inter font-medium tracking-tight text-sm" href="/soil-analysis">Solutions</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-200 dark:bg-slate-800 text-amber-500 dark:text-amber-400 hover:scale-110 transition-all shadow-xl z-50 border-none" title="Toggle Theme">
+                    <i class="fas fa-sun text-xl" id="sun-icon"></i>
+                    <i class="fas fa-moon text-xl" id="moon-icon"></i>
+                </button>
+
+                {% if session.get('logged_in') %}
+                <button onclick="window.location.href='/weather-dashboard'" class="px-5 py-2.5 bg-primary text-on-primary font-bold rounded-xl text-sm transition-all duration-200 ease-in-out active:scale-95 shadow-[0_0_20px_rgba(105,246,184,0.2)]">
+                    Dashboard
+                </button>
+                {% else %}
+                <button onclick="window.location.href='/signup'" class="px-5 py-2.5 bg-primary text-on-primary font-bold rounded-xl text-sm transition-all duration-200 ease-in-out active:scale-95 shadow-[0_0_20px_rgba(105,246,184,0.2)]">
+                    Get Started
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main class="min-h-screen">
+        <!-- Hero Section -->
+        <section class="section-padding relative pt-24 sm:pt-32 lg:pt-40 pb-16 sm:pb-24 px-6 sm:px-8 lg:px-16 overflow-hidden">
+            <!-- Decorative Glows -->
+            <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -z-10"></div>
+            <div class="absolute -bottom-24 -left-24 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px] -z-10"></div>
+            <div class="max-w-[1600px] px-4 md:px-8 mx-auto flex flex-col lg:flex-row items-center gap-16">
+                <div class="flex-1 text-center lg:text-left">
+
+                    <h2 class="hero-title text-4xl sm:text-5xl lg:text-7xl font-black text-on-surface tracking-tight mb-6 leading-none">
+                        Empowering Farmers with <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Generative Intelligence</span>
+                    </h2>
+                    <p class="text-lg text-on-surface-variant max-w-2xl mx-auto lg:mx-0 mb-10 leading-relaxed font-medium">
+                        AgriBuddy combines satellite vision with proprietary large-language models to create a diagnostic ecosystem that predicts, protects, and perfects your yield.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <button onclick="window.location.href='/weather-dashboard'" class="px-8 py-4 bg-gradient-to-br from-primary via-emerald-500 to-secondary text-on-primary font-black rounded-xl text-base shadow-[0_10px_30px_rgba(5,150,105,0.3)] hover:shadow-[0_15px_40px_rgba(5,150,105,0.4)] transition-all hover:scale-105 active:scale-95 border-b-4 border-emerald-700/30">
+                            Launch Dashboard
+                        </button>
+                        <button onclick="window.location.href='/chat-interface'" class="px-8 py-4 bg-transparent border border-outline-variant text-on-surface font-bold rounded-xl text-base hover:bg-white/5 transition-all active:scale-95 flex items-center justify-center">
+                            <span class="material-symbols-outlined mr-2">forum</span>
+                            Chat with AI
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 w-full relative">
+                    <div class="glass-panel p-4 rounded-[2rem] relative z-10 shadow-2xl overflow-hidden">
+                        <div class="relative rounded-2xl overflow-hidden aspect-square lg:aspect-[4/3] bg-surface-container">
+                            <img alt="Plant Health" class="w-full h-full object-cover opacity-80" src="/static/landing-page.jpg"/>
+                            <!-- Scanning Animation -->
+                            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-primary/20 to-transparent h-1/4 top-0 left-0 right-0" style="animation: scan 4s linear infinite;"></div>
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div class="glass-panel p-6 rounded-2xl border-primary/30 flex flex-col items-center">
+                                    <div class="text-primary text-4xl font-black mb-1">94%</div>
+                                    <div class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Health Index</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Showcase (Bento Grid) -->
+        <section class="py-24 px-8 lg:px-16 bg-surface-container-low">
+            <div class="max-w-[1600px] px-4 md:px-8 mx-auto">
+                <div class="flex flex-col lg:flex-row justify-between items-end mb-16 gap-8">
+                    <div class="max-w-2xl">
+                        <h3 class="text-4xl font-bold text-on-surface mb-4">Precision Engineering for Modern Fields</h3>
+                        <p class="text-on-surface-variant font-medium">A suite of modular tools designed to tackle the complexities of regenerative and commercial farming at scale.</p>
+                    </div>
+                    <button onclick="window.location.href='/weather-dashboard'" class="text-primary font-bold flex items-center hover:translate-x-1 transition-transform">
+                        Explore all modules <span class="material-symbols-outlined ml-1">arrow_forward</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
+                    <!-- Dashboard -->
+                    <div onclick="window.location.href='/weather-dashboard'" class="md:col-span-3 lg:col-span-4 glass-panel p-8 rounded-3xl hover:opacity-90 transition-all group cursor-pointer border-none shadow-xl">
+                        <div class="flex justify-between items-start mb-12">
+                            <div>
+                                <span class="material-symbols-outlined text-primary text-4xl mb-4 group-hover:scale-110 transition-transform">monitoring</span>
+                                <h4 class="text-2xl font-bold">Real-time Dashboard</h4>
+                            </div>
+                            <span class="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-bold tracking-widest text-primary">LIVE DATA</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="bg-primary/5 p-4 rounded-xl border-none">
+                                <div class="text-[10px] opacity-60 font-bold mb-1 uppercase">SOIL MOISTURE</div>
+                                <div class="text-xl font-bold text-primary">42%</div>
+                            </div>
+                            <div class="bg-primary/5 p-4 rounded-xl border-none">
+                                <div class="text-[10px] opacity-60 font-bold mb-1 uppercase">LUX LEVEL</div>
+                                <div class="text-xl font-bold text-primary">12.5k</div>
+                            </div>
+                            <div class="bg-primary/5 p-4 rounded-xl border-none">
+                                <div class="text-[10px] opacity-60 font-bold mb-1 uppercase">HUMIDITY</div>
+                                <div class="text-xl font-bold text-primary">68%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- AI Plant Surgeon -->
+                    <div onclick="window.location.href='/pest-checker'" class="md:col-span-3 lg:col-span-2 glass-panel p-8 rounded-3xl relative overflow-hidden group cursor-pointer border-secondary/5 hover:border-secondary/20">
+                        <div class="relative z-10">
+                            <span class="material-symbols-outlined text-secondary text-4xl mb-4 group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">visibility</span>
+                            <h4 class="text-2xl font-bold text-on-surface mb-2">AI Plant Surgeon</h4>
+                            <p class="text-sm text-on-surface-variant leading-relaxed">Computer vision models trained on 10M+ plant pathologies for instant diagnosis.</p>
+                        </div>
+                        <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-secondary/10 rounded-full blur-2xl group-hover:bg-secondary/20 transition-colors"></div>
+                    </div>
+                    <!-- Smart Soil -->
+                    <div onclick="window.location.href='/soil-analysis'" class="md:col-span-2 glass-panel p-8 rounded-3xl group cursor-pointer border-primary/5 hover:border-primary/20">
+                        <span class="material-symbols-outlined text-primary text-4xl mb-4 group-hover:scale-110 transition-transform">science</span>
+                        <h4 class="text-xl font-bold text-on-surface mb-2">Smart Soil Analysis</h4>
+                        <p class="text-xs text-on-surface-variant">Comprehensive NPK mapping and subterranean moisture tracking via sensor nodes.</p>
+                    </div>
+                    <!-- Recommendations -->
+                    <div onclick="window.location.href='/crop-recommendations'" class="md:col-span-2 glass-panel p-8 rounded-3xl group cursor-pointer border-primary/5 hover:border-primary/20">
+                        <span class="material-symbols-outlined text-primary text-4xl mb-4 group-hover:scale-110 transition-transform">auto_fix</span>
+                        <h4 class="text-xl font-bold text-on-surface mb-2">Intelligent Advice</h4>
+                        <p class="text-xs text-on-surface-variant">Personalized crop rotation strategies and fertilizer optimization based on market data.</p>
+                    </div>
+                    <!-- Community -->
+                    <div onclick="window.location.href='/community'" class="md:col-span-2 glass-panel p-8 rounded-3xl group cursor-pointer border-primary/5 hover:border-primary/20">
+                        <span class="material-symbols-outlined text-primary text-4xl mb-4 group-hover:scale-110 transition-transform">hub</span>
+                        <h4 class="text-xl font-bold text-on-surface mb-2">Agri-Community</h4>
+                        <p class="text-xs text-on-surface-variant">Connect with experts and local farmers to share hyper-local weather alerts and trade tips.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Value Prop -->
+        <section class="py-24 px-8 lg:px-16">
+            <div class="max-w-[1600px] px-4 md:px-8 mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center mb-24">
+                    <div class="relative order-2 lg:order-1">
+                        <div class="relative rounded-[2.5rem] overflow-hidden">
+                            <img alt="Farmer field" class="w-full h-auto" src="/static/pro-farmer.png"/>
+                            <div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent opacity-60"></div>
+                        </div>
+                    </div>
+                    <div class="order-1 lg:order-2">
+                        <h3 class="text-4xl font-bold text-on-surface mb-10 leading-tight">Beyond Software: A Partner in Your Harvest.</h3>
+                        <div class="space-y-8">
+                            <div class="flex gap-6">
+                                <div class="w-12 h-12 flex-shrink-0 border border-primary/30 rounded-xl flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary">bolt</span>
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-lg text-on-surface mb-1">Real-time Data Stream</h5>
+                                    <p class="text-sm text-on-surface-variant">Zero-latency integration with satellite imagery and on-site IoT sensors for up-to-the-minute field status.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-6">
+                                <div class="w-12 h-12 flex-shrink-0 border border-primary/30 rounded-xl flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary">psychology</span>
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-lg text-on-surface mb-1">Unmatched AI Accuracy</h5>
+                                    <p class="text-sm text-on-surface-variant">Our models outperform traditional diagnostic methods by 40%, catching pests before they spread.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-12 px-8 lg:px-16 border-t border-slate-700/20">
+            <div class="max-w-[1600px] px-4 md:px-8 mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-seedling text-primary text-4xl opacity-60"></i>
+                    <div>
+                        <h5 class="text-lg font-bold text-primary tracking-tighter">AgriBuddy</h2>
+                        <p class="text-xs uppercase tracking-widest opacity-60 mt-1">© 2026 AgriBuddy. Precision Agriculture Reimagined.</p>
+                    </div>
+                </div>
+
+            </div>
+        </footer>
+    </main>
+
+    <!-- FAB -->
+    <button onclick="window.location.href='/pest-checker'" class="fixed bottom-8 right-8 w-16 h-16 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(105,246,184,0.4)] hover:scale-110 active:scale-95 transition-transform z-50">
+        <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">camera</span>
+    </button>
+
+    <!-- Profile Modal (Pro Edition) -->
+    <div id="profile-modal" class="profile-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+        <div class="profile-modal-card" style="width: 90%; max-width: 500px; background: var(--bg-surface); border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: translateY(20px); transition: transform 0.3s ease;">
+            <div style="background: linear-gradient(135deg, var(--primary), #059669); padding: 40px 30px; text-align: center; position: relative;">
+                <button onclick="toggleProfileModal()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div style="width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
+                    <i class="fas fa-user" style="font-size: 40px; color: var(--primary);"></i>
+                </div>
+                <h3 id="modal-full-name" style="color: white; margin: 0; font-size: 24px; font-weight: 700;">{{ session.get('user_name', 'Farmer') }}</h3>
+                <p id="modal-email" style="color: rgba(255,255,255,0.8); margin: 5px 0 0; font-size: 14px;">{{ session.get('user_email', '') }}</p>
+            </div>
+            
+            <div style="padding: 30px; color: var(--text-main);">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 5px;">Phone Number</label>
+                        <p id="modal-phone" style="margin: 0; font-weight: 600;">Not Provided</p>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 5px;">Location</label>
+                        <p id="modal-location" style="margin: 0; font-weight: 600;">Not Provided</p>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 5px;">Farm Size</label>
+                        <p id="modal-land" style="margin: 0; font-weight: 600;">Not Provided</p>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 5px;">Soil Type</label>
+                        <p id="modal-soil" style="margin: 0; font-weight: 600;">Not Provided</p>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-muted);">
+                    <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 5px;">Current Crops</label>
+                    <p id="modal-crops" style="margin: 0; font-weight: 600;">Not Provided</p>
+                </div>
+            </div>
+            
+            <div style="padding: 20px 30px; background: var(--bg-surface); text-align: center; border-top: 1px solid rgba(105,246,184,0.1);">
+                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Profile details are read-only. Contact support to update.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleProfileModal() {
+            const modal = document.getElementById('profile-modal');
+            const card = modal.querySelector('.profile-modal-card');
+            
+            if (modal.style.display === 'none') {
+                fetch('/api/profile')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const p = data.profile;
+                            document.getElementById('modal-full-name').textContent = p.full_name || 'Farmer';
+                            document.getElementById('modal-email').textContent = data.email;
+                            document.getElementById('modal-phone').textContent = p.phone_number || 'Not Provided';
+                            document.getElementById('modal-location').textContent = (p.city && p.state) ? `${p.city}, ${p.state}` : 'Not Provided';
+                            document.getElementById('modal-land').textContent = p.land_area ? `${p.land_area} ${p.land_unit || 'acre'}` : 'Not Provided';
+                            document.getElementById('modal-soil').textContent = p.soil_type || 'Not Provided';
+                            document.getElementById('modal-crops').textContent = p.current_crops || 'Not Provided';
+                        }
+                    });
+
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 10);
+            } else {
+                modal.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+    </script>
+</body>
+</html>
