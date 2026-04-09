@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, Response, stream_with_context, send_file
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 import requests
 from dotenv import load_dotenv
 import os
@@ -51,11 +50,11 @@ if SUPABASE_URL and SUPABASE_KEY:
 else:
     print("Supabase URL or Key not configured. SUPABASE_URL/SUPABASE_KEY environment variables required.")
 
-# Configure Gemini / Generative AI
 gemini_client = None
 if GEMINI_API_KEY:
     try:
-        gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+        genai.configure(api_key=GEMINI_API_KEY)
+        gemini_client = True
     except Exception as e:
         print(f"Failed to configure Gemini API key: {e}")
 else:
@@ -415,7 +414,8 @@ def chat():
                 models_to_try = ['gemini-2.0-flash', 'gemini-flash-latest', 'gemini-pro-latest']
                 for model_name in models_to_try:
                     try:
-                        response = gemini_client.models.generate_content(model=model_name, contents=prompt)
+                        model = genai.GenerativeModel(model_name)
+                        response = model.generate_content(prompt)
                         reply_text = getattr(response, 'text', None) or (response.get('text') if isinstance(response, dict) else str(response))
                         if reply_text:
                             break
@@ -427,7 +427,8 @@ def chat():
         models_to_try = ['gemini-2.0-flash', 'gemini-flash-latest', 'gemini-pro-latest']
         for model_name in models_to_try:
             try:
-                response = gemini_client.models.generate_content(model=model_name, contents=prompt)
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content(prompt)
                 reply_text = getattr(response, 'text', None) or (response.get('text') if isinstance(response, dict) else str(response))
                 if reply_text:
                     break
@@ -584,12 +585,13 @@ def pest_checker_post():
         last_error = None
         
         # Prepare the content for Gemini API
-        image_part = types.Part.from_bytes(data=image_data, mime_type=content_type)
+        image_part = {"mime_type": content_type, "data": image_data}
         
         for model_name in models_to_try:
             try:
                 # Generate content using Gemini
-                response = gemini_client.models.generate_content(model=model_name, contents=[prompt, image_part])
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content([prompt, image_part])
                 
                 # Attempt to parse JSON from response text
                 resp_text = getattr(response, 'text', None) or (response.get('text') if isinstance(response, dict) else str(response))
