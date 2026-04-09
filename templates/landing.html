@@ -111,9 +111,16 @@
 
         /* Responsive refinements */
         @media (max-width: 640px) {
-            .hero-title { font-size: 2.8rem !important; line-height: 1.1 !important; }
-            .section-padding { padding-top: 6rem !important; padding-bottom: 4rem !important; }
+            .hero-title { font-size: 2.2rem !important; line-height: 1.2 !important; }
+            .section-padding { padding-top: 5rem !important; padding-bottom: 3rem !important; }
         }
+        
+        /* Native iOS feel */
+        * { -webkit-tap-highlight-color: transparent; }
+        button, a { cursor: pointer; touch-action: manipulation; }
+
+        .mobile-nav-enter { transform: translateX(100%); }
+        .mobile-nav-enter-active { transform: translateX(0); transition: transform 0.3s ease-out; }
     </style>
 </head>
     <body class="selection:bg-primary selection:text-on-primary overflow-x-hidden">
@@ -131,25 +138,47 @@
                     <a class="text-slate-300 hover:text-emerald-300 transition-colors Inter font-medium tracking-tight text-sm" href="/soil-analysis">Solutions</a>
                 </nav>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 sm:gap-4">
                 <!-- Theme Toggle -->
-                <button onclick="toggleTheme()" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-200 dark:bg-slate-800 text-amber-500 dark:text-amber-400 hover:scale-110 transition-all shadow-xl z-50 border-none" title="Toggle Theme">
-                    <i class="fas fa-sun text-xl" id="sun-icon"></i>
-                    <i class="fas fa-moon text-xl" id="moon-icon"></i>
+                <button onclick="toggleTheme()" class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-200 dark:bg-slate-800 text-amber-500 dark:text-amber-400 hover:scale-110 transition-all shadow-xl z-50 border-none" title="Toggle Theme">
+                    <i class="fas fa-sun text-lg sm:text-xl" id="sun-icon"></i>
+                    <i class="fas fa-moon text-lg sm:text-xl" id="moon-icon"></i>
                 </button>
 
                 {% if session.get('logged_in') %}
-                <button onclick="window.location.href='/weather-dashboard'" class="px-5 py-2.5 bg-primary text-on-primary font-bold rounded-xl text-sm transition-all duration-200 ease-in-out active:scale-95 shadow-[0_0_20px_rgba(105,246,184,0.2)]">
+                <button onclick="window.location.href='/weather-dashboard'" class="hidden sm:block px-5 py-2.5 bg-primary text-on-primary font-bold rounded-xl text-sm transition-all duration-200 ease-in-out active:scale-95 shadow-[0_0_20px_rgba(105,246,184,0.2)]">
                     Dashboard
                 </button>
                 {% else %}
-                <button onclick="window.location.href='/signup'" class="px-5 py-2.5 bg-primary text-on-primary font-bold rounded-xl text-sm transition-all duration-200 ease-in-out active:scale-95 shadow-[0_0_20px_rgba(105,246,184,0.2)]">
+                <button onclick="window.location.href='/signup'" class="hidden sm:block px-5 py-2.5 bg-primary text-on-primary font-bold rounded-xl text-sm transition-all duration-200 ease-in-out active:scale-95 shadow-[0_0_20px_rgba(105,246,184,0.2)]">
                     Get Started
                 </button>
                 {% endif %}
+
+                <!-- Mobile Menu Toggle -->
+                <button onclick="toggleMobileNav()" class="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-200 dark:bg-slate-800 text-on-surface">
+                    <i class="fas fa-bars text-xl" id="menu-icon"></i>
+                </button>
             </div>
         </div>
     </header>
+
+    <!-- Mobile Nav Drawer -->
+    <div id="mobile-nav" class="fixed inset-0 z-[60] bg-surface/95 backdrop-blur-2xl translate-x-full transition-transform duration-300 md:hidden flex flex-col p-8 pt-24">
+        <button onclick="toggleMobileNav()" class="absolute top-6 right-8 text-2xl"><i class="fas fa-times"></i></button>
+        <nav class="flex flex-col gap-6">
+            <a href="/weather-dashboard" class="text-2xl font-bold text-primary">Features</a>
+            <a href="/community" class="text-2xl font-bold">Community</a>
+            <a href="/soil-analysis" class="text-2xl font-bold">Solutions</a>
+            <hr class="border-outline-variant">
+            {% if not session.get('logged_in') %}
+            <a href="/signup" class="text-2xl font-bold text-emerald-500">Create Account</a>
+            <a href="/login" class="text-2xl font-bold">Login</a>
+            {% else %}
+            <a href="/weather-dashboard" class="text-2xl font-bold text-emerald-500">Dashboard</a>
+            {% endif %}
+        </nav>
+    </div>
 
     <main class="min-h-screen">
         <!-- Hero Section -->
@@ -197,66 +226,66 @@
         <!-- Feature Showcase (Bento Grid) -->
         <section class="py-24 px-8 lg:px-16 bg-surface-container-low">
             <div class="max-w-[1600px] px-4 md:px-8 mx-auto">
-                <div class="flex flex-col lg:flex-row justify-between items-end mb-16 gap-8">
+                <div class="flex flex-col lg:flex-row justify-between items-start md:items-end mb-12 md:mb-16 gap-6 md:gap-8">
                     <div class="max-w-2xl">
-                        <h3 class="text-4xl font-bold text-on-surface mb-4">Precision Engineering for Modern Fields</h3>
-                        <p class="text-on-surface-variant font-medium">A suite of modular tools designed to tackle the complexities of regenerative and commercial farming at scale.</p>
+                        <h3 class="text-3xl md:text-4xl font-bold text-on-surface mb-3 md:mb-4">Precision Engineering for Modern Fields</h3>
+                        <p class="text-on-surface-variant font-medium text-sm md:text-base">A suite of modular tools designed to tackle the complexities of regenerative and commercial farming at scale.</p>
                     </div>
-                    <button onclick="window.location.href='/weather-dashboard'" class="text-primary font-bold flex items-center hover:translate-x-1 transition-transform">
+                    <button onclick="window.location.href='/weather-dashboard'" class="text-primary font-bold flex items-center hover:translate-x-1 transition-transform text-sm md:text-base">
                         Explore all modules <span class="material-symbols-outlined ml-1">arrow_forward</span>
                     </button>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 md:gap-6">
                     <!-- Dashboard -->
-                    <div onclick="window.location.href='/weather-dashboard'" class="md:col-span-3 lg:col-span-4 glass-panel p-8 rounded-3xl hover:opacity-90 transition-all group cursor-pointer border-none shadow-xl">
-                        <div class="flex justify-between items-start mb-12">
+                    <div onclick="window.location.href='/weather-dashboard'" class="sm:col-span-2 lg:col-span-4 glass-panel p-6 md:p-8 rounded-3xl hover:opacity-90 transition-all group cursor-pointer border-none shadow-xl">
+                        <div class="flex justify-between items-start mb-8 md:mb-12">
                             <div>
-                                <span class="material-symbols-outlined text-primary text-4xl mb-4 group-hover:scale-110 transition-transform">monitoring</span>
-                                <h4 class="text-2xl font-bold">Real-time Dashboard</h4>
+                                <span class="material-symbols-outlined text-primary text-3xl md:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform">monitoring</span>
+                                <h4 class="text-xl md:text-2xl font-bold">Real-time Dashboard</h4>
                             </div>
-                            <span class="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-bold tracking-widest text-primary">LIVE DATA</span>
+                            <span class="px-2 md:px-3 py-1 bg-primary/10 rounded-full text-[9px] md:text-[10px] font-bold tracking-widest text-primary">LIVE DATA</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-4">
-                            <div class="bg-primary/5 p-4 rounded-xl border-none">
-                                <div class="text-[10px] opacity-60 font-bold mb-1 uppercase">SOIL MOISTURE</div>
-                                <div class="text-xl font-bold text-primary">42%</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                            <div class="bg-primary/5 p-3 md:p-4 rounded-xl border-none">
+                                <div class="text-[9px] md:text-[10px] opacity-60 font-bold mb-1 uppercase">SOIL MOISTURE</div>
+                                <div class="text-lg md:text-xl font-bold text-primary">42%</div>
                             </div>
-                            <div class="bg-primary/5 p-4 rounded-xl border-none">
-                                <div class="text-[10px] opacity-60 font-bold mb-1 uppercase">LUX LEVEL</div>
-                                <div class="text-xl font-bold text-primary">12.5k</div>
+                            <div class="bg-primary/5 p-3 md:p-4 rounded-xl border-none">
+                                <div class="text-[9px] md:text-[10px] opacity-60 font-bold mb-1 uppercase">LUX LEVEL</div>
+                                <div class="text-lg md:text-xl font-bold text-primary">12.5k</div>
                             </div>
-                            <div class="bg-primary/5 p-4 rounded-xl border-none">
-                                <div class="text-[10px] opacity-60 font-bold mb-1 uppercase">HUMIDITY</div>
-                                <div class="text-xl font-bold text-primary">68%</div>
+                            <div class="bg-primary/5 p-3 md:p-4 rounded-xl border-none">
+                                <div class="text-[9px] md:text-[10px] opacity-60 font-bold mb-1 uppercase">HUMIDITY</div>
+                                <div class="text-lg md:text-xl font-bold text-primary">68%</div>
                             </div>
                         </div>
                     </div>
                     <!-- AI Plant Surgeon -->
-                    <div onclick="window.location.href='/pest-checker'" class="md:col-span-3 lg:col-span-2 glass-panel p-8 rounded-3xl relative overflow-hidden group cursor-pointer border-secondary/5 hover:border-secondary/20">
+                    <div onclick="window.location.href='/pest-checker'" class="sm:col-span-2 lg:col-span-2 glass-panel p-6 md:p-8 rounded-3xl relative overflow-hidden group cursor-pointer border-secondary/5 hover:border-secondary/20">
                         <div class="relative z-10">
-                            <span class="material-symbols-outlined text-secondary text-4xl mb-4 group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">visibility</span>
-                            <h4 class="text-2xl font-bold text-on-surface mb-2">AI Plant Surgeon</h4>
-                            <p class="text-sm text-on-surface-variant leading-relaxed">Computer vision models trained on 10M+ plant pathologies for instant diagnosis.</p>
+                            <span class="material-symbols-outlined text-secondary text-3xl md:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">visibility</span>
+                            <h4 class="text-xl md:text-2xl font-bold text-on-surface mb-2">AI Plant Surgeon</h4>
+                            <p class="text-xs md:text-sm text-on-surface-variant leading-relaxed">Computer vision models trained on 10M+ plant pathologies for instant diagnosis.</p>
                         </div>
-                        <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-secondary/10 rounded-full blur-2xl group-hover:bg-secondary/20 transition-colors"></div>
+                        <div class="absolute -right-4 -bottom-4 w-24 md:w-32 h-24 md:h-32 bg-secondary/10 rounded-full blur-2xl group-hover:bg-secondary/20 transition-colors"></div>
                     </div>
                     <!-- Smart Soil -->
-                    <div onclick="window.location.href='/soil-analysis'" class="md:col-span-2 glass-panel p-8 rounded-3xl group cursor-pointer border-primary/5 hover:border-primary/20">
-                        <span class="material-symbols-outlined text-primary text-4xl mb-4 group-hover:scale-110 transition-transform">science</span>
-                        <h4 class="text-xl font-bold text-on-surface mb-2">Smart Soil Analysis</h4>
-                        <p class="text-xs text-on-surface-variant">Comprehensive NPK mapping and subterranean moisture tracking via sensor nodes.</p>
+                    <div onclick="window.location.href='/soil-analysis'" class="sm:col-span-1 lg:col-span-2 glass-panel p-6 md:p-8 rounded-3xl group cursor-pointer border-primary/5 hover:border-primary/20">
+                        <span class="material-symbols-outlined text-primary text-3xl md:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform">science</span>
+                        <h4 class="text-lg md:text-xl font-bold text-on-surface mb-2">Smart Soil Analysis</h4>
+                        <p class="text-[11px] md:text-xs text-on-surface-variant">Comprehensive NPK mapping and subterranean moisture tracking via sensor nodes.</p>
                     </div>
                     <!-- Recommendations -->
-                    <div onclick="window.location.href='/crop-recommendations'" class="md:col-span-2 glass-panel p-8 rounded-3xl group cursor-pointer border-primary/5 hover:border-primary/20">
-                        <span class="material-symbols-outlined text-primary text-4xl mb-4 group-hover:scale-110 transition-transform">auto_fix</span>
-                        <h4 class="text-xl font-bold text-on-surface mb-2">Intelligent Advice</h4>
-                        <p class="text-xs text-on-surface-variant">Personalized crop rotation strategies and fertilizer optimization based on market data.</p>
+                    <div onclick="window.location.href='/crop-recommendations'" class="sm:col-span-1 lg:col-span-2 glass-panel p-6 md:p-8 rounded-3xl group cursor-pointer border-primary/5 hover:border-primary/20">
+                        <span class="material-symbols-outlined text-primary text-3xl md:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform">auto_fix</span>
+                        <h4 class="text-lg md:text-xl font-bold text-on-surface mb-2">Intelligent Advice</h4>
+                        <p class="text-[11px] md:text-xs text-on-surface-variant">Personalized crop rotation strategies and fertilizer optimization based on market data.</p>
                     </div>
                     <!-- Community -->
-                    <div onclick="window.location.href='/community'" class="md:col-span-2 glass-panel p-8 rounded-3xl group cursor-pointer border-primary/5 hover:border-primary/20">
-                        <span class="material-symbols-outlined text-primary text-4xl mb-4 group-hover:scale-110 transition-transform">hub</span>
-                        <h4 class="text-xl font-bold text-on-surface mb-2">Agri-Community</h4>
-                        <p class="text-xs text-on-surface-variant">Connect with experts and local farmers to share hyper-local weather alerts and trade tips.</p>
+                    <div onclick="window.location.href='/community'" class="sm:col-span-2 lg:col-span-2 glass-panel p-6 md:p-8 rounded-3xl group cursor-pointer border-primary/5 hover:border-primary/20">
+                        <span class="material-symbols-outlined text-primary text-3xl md:text-4xl mb-3 md:mb-4 group-hover:scale-110 transition-transform">hub</span>
+                        <h4 class="text-lg md:text-xl font-bold text-on-surface mb-2">Agri-Community</h4>
+                        <p class="text-[11px] md:text-xs text-on-surface-variant">Connect with experts and local farmers to share hyper-local weather alerts and trade tips.</p>
                     </div>
                 </div>
             </div>
@@ -396,6 +425,16 @@
                 setTimeout(() => {
                     modal.style.display = 'none';
                 }, 300);
+            }
+        }
+
+        function toggleMobileNav() {
+            const nav = document.getElementById('mobile-nav');
+            const isOpen = !nav.classList.contains('translate-x-full');
+            if (isOpen) {
+                nav.classList.add('translate-x-full');
+            } else {
+                nav.classList.remove('translate-x-full');
             }
         }
     </script>
