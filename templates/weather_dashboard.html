@@ -78,7 +78,10 @@
     .chart-glow { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.2)); }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 20px; }
-    .grid-container { height: calc(100vh - 180px); min-height: 600px; }
+    .grid-container { min-height: 600px; }
+    @media (min-width: 768px) {
+        .grid-container { height: calc(100vh - 180px); }
+    }
 </style>
 {% endblock %}
 
@@ -86,49 +89,49 @@
 <!-- Ultra Pro Dashboard Content -->
 <div class="dashboard-content flex-1 h-full">
     <!-- Search Section -->
-    <section class="flex gap-4 mb-2">
-        <div class="flex-1 glass-card px-5 py-2 flex items-center gap-4 border-agri-border">
-            <i class="fas fa-city text-agri-accent"></i>
+    <section class="flex flex-col sm:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
+        <div class="flex-1 glass-card px-4 md:px-5 py-3 md:py-2 flex items-center gap-4 border-agri-border">
+            <i class="fas fa-city text-agri-accent text-xl"></i>
             <div class="flex-1">
                 <label class="block text-[10px] uppercase text-agri-muted font-black tracking-widest mb-0.5">City</label>
                 <input id="city-input" class="bg-transparent border-none p-0 focus:ring-0 w-full text-base font-bold text-agri-muted" type="text" value="Mumbai" />
             </div>
         </div>
-        <div class="flex-1 glass-card px-5 py-2 flex items-center gap-4 border-agri-border">
-            <i class="fas fa-map-pin text-blue-400"></i>
+        <div class="flex-1 glass-card px-4 md:px-5 py-3 md:py-2 flex items-center gap-4 border-agri-border">
+            <i class="fas fa-map-pin text-blue-400 text-xl"></i>
             <div class="flex-1">
                 <label class="block text-[10px] uppercase text-agri-muted font-black tracking-widest mb-0.5">ZIP Code</label>
                 <input id="zip-input" class="bg-transparent border-none p-0 focus:ring-0 w-full text-base font-bold text-agri-muted" type="text" placeholder="Optional" />
             </div>
         </div>
-        <button onclick="getWeather()" id="search-btn" class="bg-agri-accent hover:opacity-90 text-white px-8 rounded-2xl font-black text-sm flex items-center gap-3 transition-all shadow-lg active:scale-95">
+        <button onclick="getWeather()" id="search-btn" class="bg-agri-accent hover:opacity-90 text-white px-8 py-4 sm:py-0 rounded-2xl font-black text-sm flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95">
             <i class="fas fa-sync-alt"></i> FETCH DATA
         </button>
     </section>
 
     <!-- Grid Layout -->
-    <div class="grid grid-cols-12 gap-5 grid-container">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-5 grid-container">
         <!-- Left: Clock and Forecast -->
-        <div class="col-span-8 flex flex-col gap-5">
-            <div class="grid grid-cols-5 gap-5 shrink-0">
+        <div class="col-span-12 md:col-span-8 flex flex-col gap-5">
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-5 shrink-0">
                 <!-- Main Stats Card -->
-                <div class="col-span-3 glass-card p-6 relative overflow-hidden group">
-                    <div class="flex justify-between relative z-10">
+                <div class="col-span-1 sm:col-span-3 glass-card p-5 md:p-6 relative overflow-hidden group">
+                    <div class="flex flex-col sm:flex-row justify-between gap-4 relative z-10">
                         <div>
                             <span class="text-[10px] uppercase text-agri-accent font-black tracking-widest">Local Pulse</span>
-                            <div class="flex items-baseline gap-3 mt-1">
-                                <span class="text-6xl font-mono font-bold text-agri-accent tabular-nums tracking-tighter" id="main-clock">00:00:00</span>
-                                <span class="text-xl font-black text-agri-accent/70" id="am-pm">--</span>
+                            <div class="flex items-baseline gap-2 md:gap-3 mt-1">
+                                <span class="text-4xl sm:text-5xl lg:text-6xl font-mono font-bold text-agri-accent tabular-nums tracking-tighter" id="main-clock">00:00:00</span>
+                                <span class="text-lg md:text-xl font-black text-agri-accent/70" id="am-pm">--</span>
                             </div>
-                            <div id="date-display" class="mt-2 text-xs font-bold text-agri-muted uppercase tracking-widest leading-none">-- --- ----</div>
+                            <div id="date-display" class="mt-2 text-[10px] sm:text-xs font-bold text-agri-muted uppercase tracking-widest leading-none">-- --- ----</div>
                         </div>
-                        <div class="text-right">
-                            <span id="current-temp-large" class="text-4xl font-black text-agri-accent block leading-none mb-1">--°C</span>
+                        <div class="text-left sm:text-right">
+                            <span id="current-temp-large" class="text-3xl md:text-4xl font-black text-agri-accent block leading-none mb-1">--°C</span>
                             <span id="current-desc" class="text-[10px] text-agri-muted font-black uppercase">Clear Sky</span>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-5 gap-3 mt-8 pt-6 border-t border-agri-border">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-3 mt-6 md:mt-8 pt-5 md:pt-6 border-t border-agri-border">
                         <div class="text-center">
                             <div class="text-lg">🌡️</div>
                             <div id="stat-temp" class="text-xs font-black">--</div>
@@ -158,7 +161,7 @@
                 </div>
 
                 <!-- Forecast List -->
-                <div class="col-span-2 glass-card p-5 flex flex-col">
+                <div class="col-span-1 sm:col-span-2 glass-card p-5 flex flex-col">
                     <h3 class="text-[10px] font-black uppercase text-agri-accent tracking-widest mb-3">5-Day Outlook</h3>
                     <div id="forecast-container" class="space-y-4 flex-1 overflow-y-auto custom-scrollbar pr-1">
                         <!-- Injected -->
@@ -167,7 +170,7 @@
             </div>
 
             <!-- Lower Charts -->
-            <div class="grid grid-cols-2 gap-5 flex-1 min-h-0">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 flex-1 min-h-0">
                 <div class="glass-card p-5 flex flex-col relative overflow-hidden">
                     <h3 class="text-sm font-black text-agri-accent mb-1">Temperature Flux</h3>
                     <p class="text-[9px] text-agri-muted font-bold mb-4 uppercase tracking-widest font-mono">24H CYCLE ANALYTICS</p>
@@ -192,18 +195,18 @@
         </div>
 
         <!-- Right Panel -->
-        <div class="col-span-4 flex flex-col gap-5 min-h-0">
-            <div class="glass-card card-accent-blue p-5 h-[260px] flex flex-col">
+        <div class="col-span-12 md:col-span-4 flex flex-col gap-5">
+            <div class="glass-card card-accent-blue p-5 min-h-[260px] flex flex-col">
                 <h3 class="text-sm font-black text-blue-400 mb-4 uppercase tracking-tighter">Aero Velocity Map</h3>
-                <div class="flex-1 relative"><canvas id="windChart"></canvas></div>
+                <div class="flex-1 relative w-full"><canvas id="windChart"></canvas></div>
             </div>
-            <div class="glass-card p-5 flex-1 flex flex-col items-center justify-center">
+            <div class="glass-card p-5 flex flex-col items-center justify-center min-h-[300px]">
                 <h3 class="text-sm font-black text-purple-400 mb-8 self-start uppercase">Atmospheric Pressure</h3>
-                <div class="relative w-48 h-48">
+                <div class="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto">
                     <canvas id="pressureGauge"></canvas>
-                    <div class="absolute bottom-8 left-0 right-0 text-center">
-                        <span id="gauge-pressure-val" class="text-5xl font-black text-agri-accent tracking-tighter tabular-nums">--</span>
-                        <p class="text-[10px] text-agri-muted font-black uppercase tracking-widest mt-2">Millibar Units</p>
+                    <div class="absolute bottom-6 sm:bottom-8 left-0 right-0 text-center">
+                        <span id="gauge-pressure-val" class="text-4xl sm:text-5xl font-black text-agri-accent tracking-tighter tabular-nums">--</span>
+                        <p class="text-[9px] sm:text-[10px] text-agri-muted font-black uppercase tracking-widest mt-1 sm:mt-2">Millibar Units</p>
                     </div>
                 </div>
             </div>
@@ -211,7 +214,7 @@
     </div>
 
     <!-- Footer Widgets -->
-    <footer class="grid grid-cols-5 gap-4 mt-2 mb-4">
+    <footer class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-2 mb-4">
         <div class="glass-card p-4 flex flex-col justify-center">
             <span class="text-[8px] font-black text-agri-muted uppercase tracking-widest block mb-2">Solar Intensity / UV</span>
             <div class="flex justify-between items-baseline"><span id="uv-val" class="text-2xl font-black">5</span><span class="text-[10px] text-orange-400 font-bold">MODERATE</span></div>
